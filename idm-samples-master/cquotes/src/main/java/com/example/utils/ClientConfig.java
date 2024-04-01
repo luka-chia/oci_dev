@@ -10,9 +10,6 @@ package com.example.utils;
  */
 public class ClientConfig {
 
-    static{
-        System.out.println("=========================================================jialu=========================");
-    }
     //YOUR IDENTITY DOMAIN AND APPLICATION CREDENTIALS
     public static final String CLIENT_ID = "67132b667e1246ac841e089da0d62016";
     public static final String CLIENT_SECRET = "fe1cecf6-9d8f-482a-9ad3-de8c70a9b1eb";
@@ -20,7 +17,7 @@ public class ClientConfig {
     public static final String IDCS_URL = "https://idcs-8b47c72fe0a04e70beb04471fe204d58.identity.oraclecloud.com/";
 
     //INFORMATION ABOUT THE CQUOTES APPLICATION
-    private static final String APP_HOST = "http://localhost:8181";
+    private static final String APP_HOST = "http://129.213.47.115:8181";
     static final String APP_RETURN_URI = APP_HOST + "/cquotes/return";
     //public static final String APP_POST_LOGOUT_REDIRECT_URI = APP_HOST + "/cquotes";
     public static final String APP_POST_LOGOUT_REDIRECT_URI = "https://otn.oracle.com";
