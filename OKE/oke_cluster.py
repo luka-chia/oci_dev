@@ -12,7 +12,7 @@ import time
 # https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm#SDK_and_CLI_Configuration_File
 # for more info
 
-def create_oke(name, compartment_id, vcn_id, subnet_id):
+def create_oke(name, compartment_id, endpoint_subnet_id, vcn_id, subnet_id):
     # Initialize service client with default config file
     config = oci.config.from_file()
     container_engine_client = oci.container_engine.ContainerEngineClient(config)
@@ -27,7 +27,7 @@ def create_oke(name, compartment_id, vcn_id, subnet_id):
             vcn_id=vcn_id,
             kubernetes_version="v1.28.2",
             endpoint_config=oci.container_engine.models.CreateClusterEndpointConfigDetails(
-                subnet_id=subnet_id,
+                subnet_id=endpoint_subnet_id,
                 is_public_ip_enabled=True),
             options=oci.container_engine.models.ClusterCreateOptions(
                 service_lb_subnet_ids=[subnet_id],

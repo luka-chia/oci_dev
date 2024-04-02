@@ -4,7 +4,8 @@ import opc_work_request
 
 compartment_id = "ocid1.compartment.oc1..aaaaaaaajyvcxbeipsa5s4jgzdi7o3oztfqpgxickubwkajwku5hfh4octoq"
 vcn_id = "ocid1.vcn.oc1.iad.amaaaaaaak7gbriahxr6lpvdrck6uh2x37643hqe2ptl5vgowln2v4rs36da"
-pod_subnet_id = "ocid1.subnet.oc1.iad.aaaaaaaapivwaqubkxx6gcd6jq2lm7673vrqpzqecqgnivwhyhbu2vexnlkq"
+endpoint_subnet_id = "ocid1.subnet.oc1.iad.aaaaaaaaylkwuvbup6fcdxekfy5lexp5jzhhrycve57apsoxtlkyqgp6jqda"
+lb_subnet_id = "ocid1.subnet.oc1.iad.aaaaaaaapivwaqubkxx6gcd6jq2lm7673vrqpzqecqgnivwhyhbu2vexnlkq"
 node_subnet_id = "ocid1.subnet.oc1.iad.aaaaaaaaafgdxf3bruk44vdgziprhrx5iclsh22n56b46pz6vwp2fy23au6q"
 image_id = "ocid1.image.oc1.iad.aaaaaaaam6zxgcfwlyahvzmg32r526ckcosvkamzkb4vxceh7ywjslntbjmq"
 
@@ -14,8 +15,8 @@ ssh_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC02p4H1pjNUDEPORETpkHLpG9wkSMAX
 oke_cluster_name = "sdk_oke_1"
 node_pool_name = "sdk_nodepool_1"
 
-opc_request_work_id = oke_cluster.create_oke(name=oke_cluster_name, 
-                                             compartment_id=compartment_id, vcn_id=vcn_id, subnet_id=pod_subnet_id)
+opc_request_work_id = oke_cluster.create_oke(name=oke_cluster_name, endpoint_subnet_id=endpoint_subnet_id,
+                                             compartment_id=compartment_id, vcn_id=vcn_id, subnet_id=lb_subnet_id)
 
 result_status, resource_id = opc_work_request.get_request_result(opc_work_request_id=opc_request_work_id)
 print("current request when create oke cluster is in status [{0}]".format(result_status))
