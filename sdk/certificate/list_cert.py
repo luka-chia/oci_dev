@@ -7,6 +7,8 @@
 import oci
 import time
 
+from datetime import datetime
+
 config = oci.config.from_file()
 config.update({"region": "ap-singapore-1"})
 
@@ -19,9 +21,22 @@ list_certificates_response = certificates_management_client.list_certificates(
 
 # Get the data from response
 certificates = list_certificates_response.data.items
-print(len(certificates))
-for certificate in certificates:
-    if(certificate.config_type != "IMPORTED"):
-        certificates.remove(certificate)
 
-print(len(certificates))
+imported_certificates = list()
+
+for certificate in certificates:
+    if certificate.config_type == "IMPORTED":
+        imported_certificates.append(certificate)
+print(imported_certificates)
+
+format_string = "%Y-%m-%d"
+for import_cert in imported_certificates:
+    str_date = import_cert.current_version_summary.validity.time_of_validity_not_after
+    #cert_date_expire = datetime.strptime(str_date, format_string)
+
+    today = datetime.now().date()
+
+    remaining_days = str_date.date()-today
+    if remaining_days.days < int('100'):
+        print("expiry soon")
+    print(remaining_days)

@@ -185,7 +185,7 @@ def initClientContext():
     print("#***********************************************")
         
     # Begin to create a clients config list<dict>
-    
+    '''
     for subscribedRegion in subscribedRegionList:
         currentRegion = subscribedRegion.region_name
         clientConfig = generateClientConfig(defaultProfileUser, defaultProfileFingerprint, 
@@ -199,18 +199,7 @@ def initClientContext():
                                         currentRegion)
     clientConfigList.append(clientConfig)
 
-    currentRegion = "ap-tokyo-1"
-    clientConfig = generateClientConfig(defaultProfileUser, defaultProfileFingerprint, 
-                                        defaultProfileKeyFile, defaultProfileTenancy, 
-                                        currentRegion)
-    clientConfigList.append(clientConfig)
-
-    currentRegion = "us-ashburn-1"
-    clientConfig = generateClientConfig(defaultProfileUser, defaultProfileFingerprint, 
-                                        defaultProfileKeyFile, defaultProfileTenancy, 
-                                        currentRegion)
-    clientConfigList.append(clientConfig)
-    '''
+ 
     
     ## End to create a clients config list<dict>
 
@@ -645,10 +634,10 @@ def collect_oci_resources(BYD_monthly_report):
     collectWAFs(clientConfigList, chckCompartmentList)
 
     # collect all DBCS resources group by compartment
-    collectDBCSInstances(clientConfigList, chckCompartmentList)
+    #collectDBCSInstances(clientConfigList, chckCompartmentList)
 
     # collect all MySQL resources group by compartment
-    collectMySQLInstances(clientConfigList, chckCompartmentList)
+    #collectMySQLInstances(clientConfigList, chckCompartmentList)
 
     # write all resources above to excel file
     write_excel(BYD_monthly_report=BYD_monthly_report)

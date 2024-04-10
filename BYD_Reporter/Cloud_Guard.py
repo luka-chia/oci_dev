@@ -6,7 +6,6 @@
 
 import oci
 import datetime
-import matplotlib.pyplot as plt
 from openpyxl import load_workbook
 from openpyxl.styles import Font, colors, Alignment
 

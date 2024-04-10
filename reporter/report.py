@@ -18,7 +18,7 @@ resource_utilization = "D://resource_utilization.pdf"
 cloud_guard = "D://cloud_guard.pdf"
 cloud_advisor = "D://cloud_advisor.pdf"
 
-# get cost report by compartment from Cost_Management service
+# get cost report by compart ment from Cost_Management service
 print("==== step 1: get cost report by compartment from Cost_Management service ====")
 Cost_Management.get_cost_report(tenant_id=tenant_id, cost_pdf=cost_pdf)
 

@@ -7,15 +7,11 @@ from OCI_tools import CollectInstances
 from openpyxl import Workbook
 from openpyxl import load_workbook
 
-from PyPDF2 import PdfMerger
-from PyPDF2 import PdfReader
-from PyPDF2 import PdfWriter
-
 
 compartment_id = "ocid1.tenancy.oc1..aaaaaaaaro7aox2fclu4urtpgsbacnrmjv46e7n4fw3sc2wbq24l7dzf3kba"
 tenant_id="ocid1.tenancy.oc1..aaaaaaaaro7aox2fclu4urtpgsbacnrmjv46e7n4fw3sc2wbq24l7dzf3kba"
 
-BYD_monthly_report = "D://BYD_monthly_report.xlsx"
+BYD_monthly_report = "/Users/luka/BYD_monthly_report.xlsx"
 
 # 新建excel空文件
 # wb = Workbook()
