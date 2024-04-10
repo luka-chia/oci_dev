@@ -37,6 +37,6 @@ for import_cert in imported_certificates:
     today = datetime.now().date()
 
     remaining_days = str_date.date()-today
-    if remaining_days.days < int('100'):
+    if remaining_days.days < int('1000'):
         print("expiry soon")
     print(remaining_days)
