@@ -19,7 +19,8 @@ ons_client = oci.ons.NotificationDataPlaneClient(config)
 # Send the request to service, some parameters are not required, see API
 # doc for more info
 
-body = {"default": "Alarm breached", "Email": "Alarm breached: <url>"}
+a = {"name": "jilau", "e": "dennis"}
+body = {"DEFAULT": "a","Email": a}
 str = json.dumps(body)
 print(str)
 publish_message_response = ons_client.publish_message(
