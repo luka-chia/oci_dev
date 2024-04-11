@@ -17,6 +17,10 @@ client = oci.identity.IdentityClient(config)
 # Get all subscribed regions
 subscribedRegionList = client.list_region_subscriptions(config["tenancy"]).data
 
+regions = [c.region_name for c in subscribedRegionList]
+print(regions)
+
+"""
 rootCompartment = client.get_compartment(compartment_id=config["tenancy"]).data
 print(rootCompartment)
 
@@ -28,3 +32,4 @@ compartments = [{"id": c.id, "name": c.name} for c in topCompartmentPayloadList]
 
 for c in compartments:
     print(c.get("name"))
+"""

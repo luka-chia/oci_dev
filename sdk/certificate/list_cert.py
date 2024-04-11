@@ -10,13 +10,13 @@ import time
 from datetime import datetime
 
 config = oci.config.from_file()
-config.update({"region": "ap-singapore-1"})
+config.update({"region": "ap-seoul-1"})
 
 
 certificates_management_client = oci.certificates_management.CertificatesManagementClient(config)
 # Send the request to service, some parameters are not required, see API doc for more info
 list_certificates_response = certificates_management_client.list_certificates(
-    compartment_id="ocid1.compartment.oc1..aaaaaaaajyvcxbeipsa5s4jgzdi7o3oztfqpgxickubwkajwku5hfh4octoq"
+    compartment_id="ocid1.compartment.oc1..aaaaaaaahr7aicqtodxmcfor6pbqn3hvsngpftozyxzqw36gj4kh3w3kkj4q"
     )
 
 # Get the data from response
@@ -29,6 +29,7 @@ for certificate in certificates:
         imported_certificates.append(certificate)
 print(imported_certificates)
 
+'''
 format_string = "%Y-%m-%d"
 for import_cert in imported_certificates:
     str_date = import_cert.current_version_summary.validity.time_of_validity_not_after
@@ -40,3 +41,4 @@ for import_cert in imported_certificates:
     if remaining_days.days < int('1000'):
         print("expiry soon")
     print(remaining_days)
+'''
