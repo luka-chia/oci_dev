@@ -20,7 +20,7 @@ ons_client = oci.ons.NotificationDataPlaneClient(config)
 # doc for more info
 
 a = {"name": "jilau", "e": "dennis"}
-body = {"DEFAULT": "a","Email": a}
+body = {"DEFAULT": "test","Email": a}
 str = json.dumps(body)
 print(str)
 publish_message_response = ons_client.publish_message(
