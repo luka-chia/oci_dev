@@ -57,7 +57,8 @@ score_threshold =  0.6
 vector_store_limit= 10
 
 #######  Reranker model setting    #######################################
-rerankerModel = 'bgeReranker'
+#rerankerModel = 'bgeReranker'
+rerankerModel = 'cohereReranker'
 #BGE_RERANK_PATH="/home/ubuntu/ChatGPT/Models/Embeddings/bge-reranker-large"  #BAAI/bge-reranker-large
 BGE_RERANK_PATH="BAAI/bge-reranker-large"
 
@@ -74,23 +75,23 @@ CHUNK_OVERLAP = 50
 #e5_large_v2 = HuggingFaceEmbeddings(model_name="/home/ubuntu/ChatGPT/Models/Embeddings/e5-large-v2", model_kwargs={'device': device})
 #bge_large_zh_v15 = HuggingFaceEmbeddings(model_name="/home/ubuntu/ChatGPT/Models/Embeddings/bge-large-zh-v1.5", model_kwargs={'device': device})
 #e5_large_v2 = HuggingFaceEmbeddings(model_name="intfloat/e5-large-v2", model_kwargs={'device': device})
-bge_m3 = HuggingFaceEmbeddings(model_name="BAAI/bge-m3", model_kwargs={'device': device})
+bge_m3 = HuggingFaceEmbeddings(model_name="BAAI/bge-m3", model_kwargs={'device': 'cpu'})
 #bge_large_zh_v15 = HuggingFaceEmbeddings(model_name="BAAI/bge-large-zh-v1.5", model_kwargs={'device': device})
 
 genaiEmbedding=KbotOCIGenAIEmbeddings(model_id="cohere.embed-multilingual-v3.0",
                                       service_endpoint=GenAIEndpoint,
                                       compartment_id=compartment_id,
                                       auth_type=auth_type)
-#cohereEmbedding = CohereEmbeddings(model="embed-multilingual-v3.0", cohere_api_key=llm_keys.cohere_api_key)
+cohereEmbedding = CohereEmbeddings(model="embed-multilingual-v3.0", cohere_api_key=llm_keys.cohere_api_key)
 
 ## no need for a certain model, comment it
 EMBEDDING_DICT = {
     # 'm3e-base': m3eEmbedding,
     'bge_m3': bge_m3,
     #'bge_large_zh_v15': bge_large_zh_v15,
-    'oci_genai_embed': genaiEmbedding
+    'oci_genai_embed': genaiEmbedding,
     #'e5_large_v2': e5_large_v2,
-    #'cohere_embed':cohereEmbedding
+    'cohere_embed':cohereEmbedding
 }
 
 #######  llm model setting          #######################################
@@ -122,6 +123,7 @@ MODEL_DICT = {
     'OCIGenAICohere': ociGenAICohere,
     #'OCIGenAILlama2': ociGenAILlama2,
     #'Llama3-8B':  remoteModel('/home/ubuntu/ChatGPT/Models/meta/Meta-Llama-3-8B-Instruct','http://146.235.214.184:8098/v1','123456'),
+    'Llama-3-Typhoon-v1.5-8B':  remoteModel('/mnt/myvolume/typhoon/llama-3-typhoon-v1.5-8b-instruct','http://129.213.63.2:8098/v1','123456',512,0),
     #'Llama-3-70B-Instruct':  remoteModel('meta-llama/Meta-Llama-3-70B-Instruct','http://141.147.8.181:8098/v1','123456',256,0),
     #'mistral-aqua': AIQuickActions(endpoint='https://modeldeployment.us-sanjose-1.oci.customer-oci.com/ocid1.datasciencemodeldeployment.oc1.us-sanjose-1.amaaaaaaak7gbriae3l7phztdfyhlwjqjgkfcqxwhu62gs5vur4sqryi5nvq'),
     #'XingHuo': sparkAPI.SparkLLM(),
