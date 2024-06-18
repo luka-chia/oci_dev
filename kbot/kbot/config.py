@@ -25,9 +25,9 @@ http_prefix = 'http://129.213.63.2:9090/'
 ## TODO
 ORACLE_AI_VECTOR_CONNECTION_STRING="vector/VEctor#_123@138.2.110.93:1521/DB0527_PDB1.sub05271352150.vcngeneralpurpo.oraclevcn.com"
 
-OCI_OPEN_SEARCH_URL="https://amaaaaaaak7gbrialufa2y2ozyzfflp5ox2g5roy5aw5b6f7h3j2ee5z2zva.opensearch.ap-melbourne-1.oci.oraclecloud.com:9200"
-OCI_OPEN_SEARCH_USER='opc'
-OCI_OPEN_SEARCH_PASSWD='Qartrz!66'
+#OCI_OPEN_SEARCH_URL="https://amaaaaaaak7gbrialufa2y2ozyzfflp5ox2g5roy5aw5b6f7h3j2ee5z2zva.opensearch.ap-melbourne-1.oci.oraclecloud.com:9200"
+#OCI_OPEN_SEARCH_USER='opc'
+#OCI_OPEN_SEARCH_PASSWD='Qartrz!66'
 
 #######  PRD #################
 #http_prefix = 'https://prd.oracle.k8scloud.site/'
@@ -35,7 +35,7 @@ OCI_OPEN_SEARCH_PASSWD='Qartrz!66'
 
 
 #######  API auth method   #####################
-auth_type= 'none'
+# auth_type= 'none'
 # auth_type= 'API_KEY'
 auth_type= 'INSTANCE_PRINCIPAL'
 
@@ -57,12 +57,12 @@ score_threshold =  0.6
 vector_store_limit= 10
 
 #######  Reranker model setting    #######################################
-#rerankerModel = 'bgeReranker'
+rerankerModel = 'bgeReranker'
 #BGE_RERANK_PATH="/home/ubuntu/ChatGPT/Models/Embeddings/bge-reranker-large"  #BAAI/bge-reranker-large
-#BGE_RERANK_PATH="BAAI/bge-reranker-large"
+BGE_RERANK_PATH="BAAI/bge-reranker-large"
 
 ## TODO
-rerankerModel = 'cohereReranker'
+#rerankerModel = 'cohereReranker'
 reranker_topk= 2
 
 #######  the memory window for chat history   #####################
@@ -74,7 +74,7 @@ CHUNK_OVERLAP = 50
 #e5_large_v2 = HuggingFaceEmbeddings(model_name="/home/ubuntu/ChatGPT/Models/Embeddings/e5-large-v2", model_kwargs={'device': device})
 #bge_large_zh_v15 = HuggingFaceEmbeddings(model_name="/home/ubuntu/ChatGPT/Models/Embeddings/bge-large-zh-v1.5", model_kwargs={'device': device})
 #e5_large_v2 = HuggingFaceEmbeddings(model_name="intfloat/e5-large-v2", model_kwargs={'device': device})
-#bge_m3 = HuggingFaceEmbeddings(model_name="BAAI/bge-m3", model_kwargs={'device': device})
+bge_m3 = HuggingFaceEmbeddings(model_name="BAAI/bge-m3", model_kwargs={'device': device})
 #bge_large_zh_v15 = HuggingFaceEmbeddings(model_name="BAAI/bge-large-zh-v1.5", model_kwargs={'device': device})
 
 genaiEmbedding=KbotOCIGenAIEmbeddings(model_id="cohere.embed-multilingual-v3.0",
@@ -86,9 +86,9 @@ genaiEmbedding=KbotOCIGenAIEmbeddings(model_id="cohere.embed-multilingual-v3.0",
 ## no need for a certain model, comment it
 EMBEDDING_DICT = {
     # 'm3e-base': m3eEmbedding,
-    #'bge_m3': bge_m3,
+    'bge_m3': bge_m3,
     #'bge_large_zh_v15': bge_large_zh_v15,
-    'oci_genai_embed': genaiEmbedding,
+    'oci_genai_embed': genaiEmbedding
     #'e5_large_v2': e5_large_v2,
     #'cohere_embed':cohereEmbedding
 }
@@ -105,16 +105,16 @@ ociGenAICohere = KbotOCIGenAI(
                   }
 )
 
-ociGenAILlama2 =  KbotOCIGenAI(
-    model_id="meta.llama-2-70b-chat",
-    service_endpoint=GenAIEndpoint,
-    compartment_id=compartment_id,
-    auth_type=auth_type,
-    model_kwargs = {
-      'max_tokens': 4096,
-     'temperature'   : 0.10,
-     }
-)
+#ociGenAILlama2 =  KbotOCIGenAI(
+#    model_id="meta.llama-2-70b-chat",
+#    service_endpoint=GenAIEndpoint,
+#    compartment_id=compartment_id,
+#    auth_type=auth_type,
+#    model_kwargs = {
+#      'max_tokens': 4096,
+#     'temperature'   : 0.10,
+#     }
+#)
 
 MODEL_DICT = {
     'NoneLLM': 'NoneLLM',
@@ -127,7 +127,7 @@ MODEL_DICT = {
     #'XingHuo': sparkAPI.SparkLLM(),
     #'ChatGLM4':  glm4API.GLM4(),
     #'ChatGPT' : chatgptAPI.gpt3,
-    #'Qwen-plus': QwenPlus(),
+    'Qwen-plus': QwenPlus(),
     'Cohere-CommandR+': commandRPlus(),
     ######################      local models      ###########################################
     ###   format 1) : local path

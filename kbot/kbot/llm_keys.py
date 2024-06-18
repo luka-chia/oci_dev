@@ -1,8 +1,8 @@
 #######  LLM API Key(Please replace the key with your own) #################
-cohere_api_key='xx'
+cohere_api_key='f2tdOlbKMadK2UwfcTlAI8BjTBqQSRwvwLcoSsYG'
 openai_key='sk-xx'
 zhipu_api_key='xx.8we0mI6bLskbmmPT'
-qwen_api_key='sk-xx'
+qwen_api_key='sk-861aa25696034a9faf70980abea1e820'
 
 ######  讯飞星火模型key配置开始 ######
 xinghuo_appid="a4871479"
