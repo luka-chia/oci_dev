@@ -49,7 +49,8 @@ KB_ROOT_PATH = '/home/ubuntu/kbroot'
 sqlite_path = KB_ROOT_PATH
 
 #######  OCI genAI Settings    #####################
-compartment_id = "ocid1.compartment.oc1..aaaaaaaapw7vdtp4sakhe7zs7tybhtapgc26ga472v62ykdboxxbuo2cad6q"
+#compartment_id = "ocid1.compartment.oc1..aaaaaaaapw7vdtp4sakhe7zs7tybhtapgc26ga472v62ykdboxxbuo2cad6q"
+compartment_id = "ocid1.compartment.oc1..aaaaaaaakv67m3o3jzvf36ebqghdl7baomdnayjrg2h45ygz3kbn2x64wnpa"
 GenAIEndpoint = "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com"
 
 #######  Vector Store setting    #######################################
