@@ -20,10 +20,10 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 #######  DEV #################
 #http_prefix = 'https://dev.oracle.k8scloud.site/'
 ## TODO
-http_prefix = 'http://129.213.63.2:9090/'
+http_prefix = 'http://152.67.0.99:9090/'
 #ORACLE_AI_VECTOR_CONNECTION_STRING="vector/vector@129.159.40.144:1521/orclpdb1"
 ## TODO
-ORACLE_AI_VECTOR_CONNECTION_STRING="vector/VEctor#_123@138.2.110.93:1521/DB0527_PDB1.sub05271352150.vcngeneralpurpo.oraclevcn.com"
+ORACLE_AI_VECTOR_CONNECTION_STRING="vector_kbot/VEctor#_123@10.0.0.120:1521/VECTORDB_PDB1.publicsubnetdat.datasciencevcn.oraclevcn.com"
 
 #OCI_OPEN_SEARCH_URL="https://amaaaaaaak7gbrialufa2y2ozyzfflp5ox2g5roy5aw5b6f7h3j2ee5z2zva.opensearch.ap-melbourne-1.oci.oraclecloud.com:9200"
 #OCI_OPEN_SEARCH_USER='opc'
