@@ -5,6 +5,8 @@ from modelPrepare.qwenAPI import QwenPlus
 from llm_prepare import load_llm_model
 from langchain_community.llms import OCIGenAI
 import torch
+from langchain_community.chat_models.oci_generative_ai import ChatOCIGenAI
+
 from modelPrepare import sparkAPI
 from modelPrepare import glm4API
 from modelPrepare import chatgptAPI
