@@ -22,10 +22,10 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 #######  DEV #################
 #http_prefix = 'https://dev.oracle.k8scloud.site/'
 ## TODO
-http_prefix = 'http://152.67.0.99:9090/'
+http_prefix = 'http://150.230.210.31:9090/'
 #ORACLE_AI_VECTOR_CONNECTION_STRING="vector/vector@129.159.40.144:1521/orclpdb1"
 ## TODO
-ORACLE_AI_VECTOR_CONNECTION_STRING="vector_kbot/VEctor#_123@10.0.0.120:1521/VECTORDB_PDB1.publicsubnetdat.datasciencevcn.oraclevcn.com"
+ORACLE_AI_VECTOR_CONNECTION_STRING="vector/VEctor#_123@10.0.0.124:1521/freepdb1"
 
 #OCI_OPEN_SEARCH_URL="https://amaaaaaaak7gbrialufa2y2ozyzfflp5ox2g5roy5aw5b6f7h3j2ee5z2zva.opensearch.ap-melbourne-1.oci.oraclecloud.com:9200"
 #OCI_OPEN_SEARCH_USER='opc'
@@ -52,7 +52,7 @@ sqlite_path = KB_ROOT_PATH
 
 #######  OCI genAI Settings    #####################
 #compartment_id = "ocid1.compartment.oc1..aaaaaaaapw7vdtp4sakhe7zs7tybhtapgc26ga472v62ykdboxxbuo2cad6q"
-compartment_id = "ocid1.compartment.oc1..aaaaaaaakv67m3o3jzvf36ebqghdl7baomdnayjrg2h45ygz3kbn2x64wnpa"
+compartment_id = "ocid1.compartment.oc1..aaaaaaaahhnvcgwcvk74ykvpzqbkp4brwxbak7ooimqfyouv2ga4fue3o4xq"
 GenAIEndpoint = "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com"
 
 #######  Vector Store setting    #######################################
@@ -99,15 +99,6 @@ EMBEDDING_DICT = {
 
 #######  llm model setting          #######################################
 # use default authN method   INSTANCE_PRINCIPAL
-ociGenAICohere = KbotOCIGenAI(
-    model_id="cohere.command",
-    service_endpoint=GenAIEndpoint,
-    compartment_id=compartment_id,
-    auth_type=auth_type,
-    model_kwargs={'max_tokens': 4096,
-                  'temperature': 0,
-                  }
-)
 
 #ociGenAILlama2 =  KbotOCIGenAI(
 #    model_id="meta.llama-2-70b-chat",
@@ -120,20 +111,53 @@ ociGenAICohere = KbotOCIGenAI(
 #     }
 #)
 
+ociCMDR = KbotChatOCIGenAI(
+    model_id="cohere.command-r-16k",
+    service_endpoint="https://inference.generativeai.us-chicago-1.oci.oraclecloud.com",
+    compartment_id=compartment_id,
+    auth_type=auth_type,
+    model_kwargs={'max_tokens': 4000,
+                  'temperature': 0,
+    }
+)
+
+ociCMDRPlus = KbotChatOCIGenAI(
+    model_id="cohere.command-r-plus",
+    service_endpoint="https://inference.generativeai.us-chicago-1.oci.oraclecloud.com",
+    compartment_id=compartment_id,
+    auth_type=auth_type,
+    model_kwargs={'max_tokens': 4000,
+                  'temperature': 0,
+    }
+)
+ociGenAILlama3 =  KbotChatOCIGenAI(
+    model_id="meta.llama-3-70b-instruct",
+    service_endpoint=GenAIEndpoint,
+    compartment_id=compartment_id,
+    auth_type=auth_type,
+    model_kwargs = {
+      'max_tokens': 1024,
+     'temperature'   : 0.10,
+     }
+)
+
 MODEL_DICT = {
     'NoneLLM': 'NoneLLM',
     ######################      API models        #############################################
-    'OCIGenAICohere': ociGenAICohere,
+    #'OCIGenAICohere': ociGenAICohere,
+    'OCIGenAICohereCmdR':ociCMDR,
+    'OCIGenAICohereCmdR+':ociCMDRPlus,
+    'OCIGenAILlama3': ociGenAILlama3,
     #'OCIGenAILlama2': ociGenAILlama2,
     #'Llama3-8B':  remoteModel('/home/ubuntu/ChatGPT/Models/meta/Meta-Llama-3-8B-Instruct','http://146.235.214.184:8098/v1','123456'),
-    'Llama-3-Typhoon-v1.5-8B':  remoteModel('/mnt/myvolume/typhoon/llama-3-typhoon-v1.5-8b-instruct','http://129.213.63.2:8098/v1','123456',512,0),
+    #'Llama-3-Typhoon-v1.5-8B':  remoteModel('/mnt/myvolume/typhoon/llama-3-typhoon-v1.5-8b-instruct','http://129.213.63.2:8098/v1','123456',512,0),
     #'Llama-3-70B-Instruct':  remoteModel('meta-llama/Meta-Llama-3-70B-Instruct','http://141.147.8.181:8098/v1','123456',256,0),
     #'mistral-aqua': AIQuickActions(endpoint='https://modeldeployment.us-sanjose-1.oci.customer-oci.com/ocid1.datasciencemodeldeployment.oc1.us-sanjose-1.amaaaaaaak7gbriae3l7phztdfyhlwjqjgkfcqxwhu62gs5vur4sqryi5nvq'),
     #'XingHuo': sparkAPI.SparkLLM(),
     #'ChatGLM4':  glm4API.GLM4(),
     #'ChatGPT' : chatgptAPI.gpt3,
-    'Qwen-plus': QwenPlus(),
-    'Cohere-CommandR+': commandRPlus(),
+    #'Qwen-plus': QwenPlus(),
+    #'Cohere-CommandR+': commandRPlus(),
     ######################      local models      ###########################################
     ###   format 1) : local path
     # e.g.  'llama-2-7b-chat':   load_llm_model("/home/ubuntu/ChatGPT/Models/meta/llama2/Llama-2-7b-chat-hf"),
