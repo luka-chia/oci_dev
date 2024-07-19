@@ -78,7 +78,7 @@ CHUNK_OVERLAP = 50
 #e5_large_v2 = HuggingFaceEmbeddings(model_name="/home/ubuntu/ChatGPT/Models/Embeddings/e5-large-v2", model_kwargs={'device': device})
 #bge_large_zh_v15 = HuggingFaceEmbeddings(model_name="/home/ubuntu/ChatGPT/Models/Embeddings/bge-large-zh-v1.5", model_kwargs={'device': device})
 #e5_large_v2 = HuggingFaceEmbeddings(model_name="intfloat/e5-large-v2", model_kwargs={'device': device})
-bge_m3 = HuggingFaceEmbeddings(model_name="BAAI/bge-m3", model_kwargs={'device': 'cpu'})
+bge_m3 = HuggingFaceEmbeddings(model_name="BAAI/bge-m3", model_kwargs={'device': device})
 #bge_large_zh_v15 = HuggingFaceEmbeddings(model_name="BAAI/bge-large-zh-v1.5", model_kwargs={'device': device})
 
 genaiEmbedding=KbotOCIGenAIEmbeddings(model_id="cohere.embed-multilingual-v3.0",
@@ -145,6 +145,8 @@ MODEL_DICT = {
     'NoneLLM': 'NoneLLM',
     ######################      API models        #############################################
     #'OCIGenAICohere': ociGenAICohere,
+    'Qwen2-7B-Instruct': remoteModel('Qwen2-7B-Instruct','http://10.0.0.61:8098/v1','123456',512,0),
+    'Meta-Llama-3-8B-Instruct ': remoteModel('Meta-Llama-3-8B-Instruct','http://10.0.0.61:8099/v1','123456',512,0),
     'OCIGenAICohereCmdR':ociCMDR,
     'OCIGenAICohereCmdR+':ociCMDRPlus,
     'OCIGenAILlama3': ociGenAILlama3,
