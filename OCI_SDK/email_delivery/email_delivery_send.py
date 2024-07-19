@@ -7,8 +7,8 @@ import ssl
 # Replace sender@example.com with your "From" address.
 # This address must be verified.
 # this is the approved sender email
-SENDER = 'test@byd.com'
-SENDERNAME = 'Sender Name'
+SENDER = 'luka@byd.hw69.cn'
+SENDERNAME = 'luka_byd'
  
 # Replace recipient@example.com with a "To" address. If your account
 # is still in the sandbox, this address must be verified.
