@@ -122,6 +122,8 @@ def ask_rag(user: str,
 
     # 3.设置Prompt
     promptContent = load_prompt_from_db(prompt_name)
+    if not promptContent or promptContent =="":
+        raise ValueError("prompt is empty !")
     prompt = PromptTemplate(input_variables=["question", "context"], template=promptContent)
     logger.info(f"##3.完成获取prompt:{prompt}##")
 
@@ -296,7 +298,7 @@ def ask_llm(query, model_name: str, prompt_name: Optional[str] = None):
         promptContent = load_prompt_from_db(prompt_name)
         prompt = PromptTemplate(input_variables=["query"], template=promptContent)
 
-    logger.info("#### Prompt: ", prompt)
+    logger.info("#### Prompt: {}", query)
 
     query_llm = LLMChain(llm=config.MODEL_DICT.get(model_name), prompt=prompt)
     logger.info(f"#### chat with LLM {model_name}: ", config.MODEL_DICT.get(model_name))
@@ -311,7 +313,7 @@ def ask_llm(query, model_name: str, prompt_name: Optional[str] = None):
     result_str = json.dumps(
         [{"content": p.content, "source": p.source, "score": float(p.score)} for p in vector_res_arr],
         ensure_ascii=False)
-    logger.info("######result_str: ", result_str)
+    logger.info("###### answer: {}", result_str)
     result_list = json.loads(result_str)
     return result_list
 

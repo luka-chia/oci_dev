@@ -4,13 +4,16 @@ from fileinput import filename
 from functools import wraps
 from tqdm import tqdm
 from loguru import logger
-
+import shutil
+from datetime import datetime
+from langchain_community.document_loaders import RecursiveUrlLoader
+from langchain_community.document_transformers import Html2TextTransformer
 from util import init_oci_auth, ppOCR
 from langchain_community.document_loaders import TextLoader, PyPDFLoader, WebBaseLoader, Docx2txtLoader, \
     UnstructuredWordDocumentLoader
 import json, os, urllib
 import cohere
-from pydantic import BaseModel
+from pydantic import BaseModel, FilePath
 import pydantic
 from fastapi import File, Form, Query, UploadFile
 from typing import Tuple
@@ -23,19 +26,16 @@ from langchain_community.vectorstores import FAISS
 import copy
 # from sympy import content
 import config, llm_keys
+from pathlib import Path
+
 from vectorDB.oracle_ai_vector_search import OracleAIVector
 from util import get_content_root, get_file_path, get_kb_path, get_vs_path, makeSplitter, AskResponseData, \
     get_url_subpath, \
-    get_uploaded_file_subpath, delete_folder, copy_to_dest_dir, write_object, doc_clean, ociSpeechASRLoader, \
+    get_uploaded_file_subpath, delete_folder, write_object, doc_clean, ociSpeechASRLoader, \
     get_cur_time, format_llm_response
 from FlagEmbedding import FlagReranker
 from langchain_core.documents import Document
 from langchain_text_splitters import TextSplitter
-
-KB_ROOT_PATH = config.KB_ROOT_PATH
-if not os.path.exists(KB_ROOT_PATH):
-    os.makedirs(KB_ROOT_PATH)
-    logger.info("------- created kb root path")
 
 EMBEDDING_MODEL = "e5_large_v2"
 
@@ -96,11 +96,11 @@ class ListResponse(BaseResponse):
 from sqlalchemy import Float, create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, DateTime, func
+from sqlalchemy import Column, Integer, String, DateTime, func, Index
 
 TEXT_SPLITTER_NAME = "RecursiveCharacterTextSplitter"
 
-LOADER_DICT = {"UnstructuredHTMLLoader": ['.html'],
+LOADER_DICT = {"UnstructuredHTMLLoader": ['.url'],
                "UnstructuredMarkdownLoader": ['.md'],
                "CustomJSONLoader": [".json"],
                "CSVLoader": [".csv"],
@@ -127,8 +127,19 @@ import time
 
 
 class KnowledgeFile:
+    chunk_size: int = None
+    chunk_overlap: int = None
+    batch_name = './'
+    status = 'success'
+    msg = ''
+    filename: str = None
+    filepath: str = None
+    knowledge_base_name: str = None
+    ext: str = None
+    type: str = 'file'
+
     def get_mtime(self):
-        if self.ext == '.html':
+        if self.ext == '.url':
             now = time.time()
             return now
         return os.path.getmtime(self.filepath)
@@ -149,7 +160,7 @@ class KnowledgeFile:
         return loader
 
     def get_size(self):
-        if self.ext == '.html':
+        if self.ext == '.url':
             return 0  ### url not saved to local
         return os.path.getsize(self.filepath)
 
@@ -160,33 +171,44 @@ class KnowledgeFile:
 
     def __init__(
             self,
-            filename: str,
-            knowledge_base_name: str,
-            type: str = 'file'):
+            # knowledge_base_name: str='knowledge_base_name',
+            **kwargs,
+            # filename: str='default_filename',
+            # filepath:str = 'default_filepath',
+            # type: str = 'file'
+    ):
         '''
         对应知识库目录中的文件，必须是磁盘上存在的才能进行向量化等操作。
 
         '''
-        self.kb_name = knowledge_base_name
-        self.filename = filename
-        if type == 'webpage':
-            self.ext = '.html'
+        # self.kb_name = kwargs.get('knowledge_base_name')
+        # self.filename =kwargs.get('filename')
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        # self.filepath =kwargs.get('filepath')
+        if self.type == 'webpage':
+            self.ext = '.url'
             # doc_path = get_content_root(knowledge_base_name)
             # url_subpath = os.path.join(doc_path, 'webpages')
-            self.filepath = filename
-            loader = WebBaseLoader(filename)
+            # self.filepath = self.filename
+            # loader = WebBaseLoader(filename)
             logger.info(self.filepath)
         # elif type=='audio':
         #     filename = filename.replace('/','-')
         #     self.filepath=get_file_path(knowledge_base_name, filename)
         #     self.ext = os.path.splitext(filename)[-1].lower()
         else:
-            self.ext = os.path.splitext(filename)[-1].lower()
-            filename = filename.replace('/', '-')
-            self.filepath = get_file_path(knowledge_base_name, filename)
-
+            self.ext = os.path.splitext(kwargs.get('filename'))[-1].lower() if kwargs.get('filename') else \
+                os.path.splitext(kwargs.get('filepath'))[-1].lower()
+            # filename = filename.replace('/', '-')
+            if not kwargs.get('filepath'):
+                self.contentRoot = get_content_root(kwargs.get('knowledge_base_name'))
+                fileDiskPath = Path(self.contentRoot) / self.filename
+                if not fileDiskPath.parent.exists:
+                    fileDiskPath.parent.mkdir(parents=True)
+                self.filepath = str(fileDiskPath)
         if self.ext not in SUPPORTED_EXTS:
-            raise ValueError(f"暂未支持的文件格式 {self.ext}")
+            logger.warning(f"暂未支持的文件格式 {self.ext}")
         self.docs = None
         self.texts = None
         self.document_loader_name = get_LoaderClass(self.ext)
@@ -211,9 +233,13 @@ class KnowledgeFile:
             self,
             text_splitter: TextSplitter = None,
     ):
-        loader = WebBaseLoader(self.filename)
-        doc = loader.load()
-        texts = text_splitter.split_documents(doc)
+        loader = RecursiveUrlLoader(
+            self.filepath,
+            max_depth=1, )
+        docs = loader.load()
+        html2text = Html2TextTransformer()
+        docs_transformed = html2text.transform_documents(docs)
+        texts = text_splitter.split_documents(docs_transformed)
         return texts
 
     def file2text(
@@ -221,20 +247,27 @@ class KnowledgeFile:
             text_splitter: TextSplitter = None,
             lang='en'
     ):
+        '''
+        for uploading files from web
+        :param text_splitter:
+        :param lang: when there are some images or audios, specify the language
+        :return: chunked langchain documents
+        '''
         if self.ext == '.wav':
             # asr to text .
             # just a placeholder for now, for asr only need to uploaded to oci buckets first。
-            objectPathArr = self.filename.split('/')
-            ns = objectPathArr[0]
-            bucket = objectPathArr[1]
-            object = "/".join(objectPathArr[2:])
-            fileTextOneString = ociSpeechASRLoader(ns, bucket, object, lang)
+            # objectPathArr = self.filename.split('/')
+            # ns = objectPathArr[0]
+            # bucket = objectPathArr[1]
+            # object = "/".join(objectPathArr[2:])
+            raise ValueError(f"you need to use asr interface first, {self.filepath}")
+            # fileTextOneString = ociSpeechASRLoader(ns, bucket, object, lang)
         elif self.document_loader_name == 'ImageOCRLoader':
             fileTextOneString = ppOCR(self.filepath, lang)
-            parent_dir = os.path.dirname(self.filepath)
-            ocr_dir = os.path.join(parent_dir, 'ocr')
-            os.makedirs(ocr_dir, exist_ok=True)
-            with open(ocr_dir + "/" + self.filename, "w") as f:
+            ocrFilePosixPath = Path(self.contentRoot) / Path('ocr') / Path(self.filename + '.txt')
+            if not ocrFilePosixPath.parent.exists():
+                ocrFilePosixPath.parent.mkdir(parents=True)
+            with open(str(ocrFilePosixPath), "w") as f:
                 f.write(fileTextOneString)
             document = Document(page_content=fileTextOneString)
             document.metadata['source'] = self.filepath
@@ -250,18 +283,22 @@ class KnowledgeFile:
             self,
             text_splitter: TextSplitter = None,
     ):
+        '''
+        when recreating the whole vectorStore, scanning all the text files beneath the content Root dir of a certain knowledge base
+        :param text_splitter:
+        :return: chunked langchain documents
+        '''
         if self.ext == '.wav':
             # asr to text .
-            # just a placeholder for now, for asr only need to uploaded to oci buckets first。
-            objectPathArr = self.filename.split('/')
-            ns = objectPathArr[0]
-            bucket = objectPathArr[1]
-            object = "/".join(objectPathArr[2:])
-            fileTextOneString = ociSpeechASRLoader(ns, bucket, object, 'lang')
+            asrFilePosixPath = Path(self.contentRoot) / Path('asr') / Path(self.filename + '.txt')
+            with open(str(asrFilePosixPath), "r") as f:
+                fileTextOneString = f.read()
+            document = Document(page_content=fileTextOneString)
+            document.metadata['source'] = self.filepath
+            docs = [document]
         elif self.document_loader_name == 'ImageOCRLoader':
-            parent_dir = os.path.dirname(self.filepath)
-            ocr_dir = os.path.join(parent_dir, 'ocr')
-            with open(ocr_dir + "/" + self.filename, "r") as f:
+            ocrFilePosixPath = Path(self.contentRoot) / Path('ocr') / Path(self.filename + '.txt')
+            with open(str(ocrFilePosixPath), "r") as f:
                 fileTextOneString = f.read()
             document = Document(page_content=fileTextOneString)
             document.metadata['source'] = self.filepath
@@ -274,6 +311,17 @@ class KnowledgeFile:
         return self.texts
 
 
+if config.KB_ROOT_PATH == 'auto':
+    # 获取当前脚本所在的路径
+    current_file_path = os.path.abspath(__file__)
+    # 获取父目录
+    parent_directory = os.path.dirname(current_file_path)
+    # 获取父目录的父目录
+    grandparent_directory = os.path.dirname(parent_directory)
+    config.KB_ROOT_PATH = Path(grandparent_directory) / 'kbroot'
+    logger.info(f"KBroot Path is set in {config.KB_ROOT_PATH}")
+    config.sqlite_path = config.KB_ROOT_PATH
+
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
 # 创建一个 SQLite 数据库引擎
@@ -281,7 +329,7 @@ sqlitePath = os.path.expanduser(f'{config.sqlite_path}/kbdatabase.db')
 parent_path = os.path.dirname(sqlitePath)
 if not os.path.exists(parent_path):
     os.makedirs(parent_path)
-    logger.info("------- created kb root path  ------- ")
+    logger.info(f"------- created sqlite db file directory {parent_path} ------- ")
 engine = create_engine(
     'sqlite:///' + sqlitePath,
     json_serializer=lambda obj: json.dumps(obj, ensure_ascii=False),
@@ -290,13 +338,33 @@ engine = create_engine(
 Base: DeclarativeMeta = declarative_base()
 
 
+class KnowledgeBatchInfo(Base):
+    __tablename__ = 'knowledge_batch_info'
+    id = Column(Integer, primary_key=True, autoincrement=True, comment='kb batch ID')
+    batch_name = Column(String, comment='batch name    ')
+    kb_name = Column(String, comment='kb name')
+    chunk_size = Column(Integer, default=250, comment="the size of a chunk")
+    chunk_overlap = Column(Integer, default=25, comment="the chunks overlapping size  ")
+    update_time = Column(DateTime, default=func.now(), comment='update_time ')
+    file_count = Column(Integer, default=0, comment='total file count')
+    __table_args__ = (
+        Index('batch_in_kb', 'batch_name', 'kb_name'),  # 复合索引
+    )
+
+
 class KnowledgeFileModel(Base):
     """
     知识文件模型
     """
     __tablename__ = 'knowledge_file'
-    id = Column(Integer, primary_key=True, autoincrement=True, comment='知识文件ID')
+    # id = Column(Integer, primary_key=True, autoincrement=True, comment='知识文件ID')
+    filepath = Column(String, primary_key=True, comment='file absolute path')
     file_name = Column(String(255), comment='文件名')
+    chunk_size = Column(Integer, default=250, comment="the size of a chunk")
+    chunk_overlap = Column(Integer, default=25, comment="the chunks overlapping size  ")
+    batch_name = Column(String, comment='batch name')
+    status = Column(String, comment='success or failure when saving it to kbot')
+    msg = Column(String, comment='error message when saving it to kbot')
     file_ext = Column(String(10), comment='文件扩展名')
     kb_name = Column(String(50), comment='所属知识库名称')
     document_loader_name = Column(String(50), comment='文档加载器名称')
@@ -430,7 +498,8 @@ def run_in_thread_pool(
 
 def _save_files_in_thread(files: List[UploadFile],
                           knowledge_base_name: str,
-                          override: bool):
+                          override: bool,
+                          batch_prefix='./'):
     '''
     通过多线程将上传的文件保存到对应知识库目录内。
     生成器返回保存结果：{"code":200, "msg": "xxx", "data": {"knowledge_base_name":"xxx", "file_name": "xxx"}}
@@ -442,13 +511,19 @@ def _save_files_in_thread(files: List[UploadFile],
         '''
         try:
             filename = file.filename
-            file_path = get_file_path(knowledge_base_name=knowledge_base_name, doc_name=filename)
-            data = {"knowledge_base_name": knowledge_base_name, "file_name": filename}
-
             file_content = file.file.read()  # 读取上传文件的内容
+
+            # file_path = get_file_path(knowledge_base_name=knowledge_base_name, doc_name=filename)
+            data = {"knowledge_base_name": knowledge_base_name, "file_name": filename}
+            contentRoot = get_content_root(knowledge_base_name)
+            pathWithBatchPrefix = Path(batch_prefix) / filename
+            fileDiskPath = Path(contentRoot) / pathWithBatchPrefix
+            file_path = str(fileDiskPath)
+            if not fileDiskPath.parent.exists():
+                fileDiskPath.parent.mkdir(parents=True)
             if override:
                 # vector_store = get_vs_from_kb(knowledge_base_name)
-                delete_docs(knowledge_base_name, [filename])
+                delete_docs(knowledge_base_name, [str(pathWithBatchPrefix)])
                 # for k,v in vector_store.docstore._dict.items():
                 #     logger.info(1111,v.metadata.get("source"))
                 # ids = [k for k, v in vector_store.docstore._dict.items() if v.metadata.get("source") == file_path]
@@ -459,8 +534,7 @@ def _save_files_in_thread(files: List[UploadFile],
                     and not override
                     and os.path.getsize(file_path) == len(file_content)
             ):
-                # TODO: filesize 不同后的处理
-                file_status = f"文件 {filename} 已存在。"
+                file_status = f"file {filename} existed in this batch"
                 return dict(code=404, msg=file_status, data=data)
 
             file_path = os.path.expanduser(file_path)
@@ -486,15 +560,68 @@ def load_kb_from_db(session, kb_name):
 
 
 @with_session
+def queryEmbedSettingByFile(session, filepath):
+    knowledgeFileModel: KnowledgeFileModel = (session.query(KnowledgeFileModel)
+                                              .filter_by(filepath=filepath)
+                                              .first())
+    if knowledgeFileModel:
+        return knowledgeFileModel.kb_name, knowledgeFileModel.chunk_size, knowledgeFileModel.chunk_overlap,
+    else:
+        return None, None, None
+
+
+@with_session
+def queryFilesByKB(session, KB):
+    allfiles = (session.query(KnowledgeFileModel)
+                .filter_by(kb_name=KB)
+                .all())
+    resultArr = []
+    for kfile in allfiles:
+        result = {
+            'batch_name': kfile.batch_name,
+            'file_basename': str(Path(kfile.file_name).relative_to(Path(kfile.batch_name))),
+            'chunk_size': kfile.chunk_size,
+            'chunk_overlap': kfile.chunk_overlap,
+            'status': kfile.status,
+            'msg': kfile.msg,
+
+        }
+        resultArr.append(result)
+
+    # return  json.dumps(resultArr, ensure_ascii=False)
+    return resultArr
+
+
+@with_session
+def add_batchInfo_to_db(session, batchInfo: KnowledgeBatchInfo):
+    batchInfoDB = session.query(KnowledgeBatchInfo).filter_by(batch_name=batchInfo.batch_name,
+                                                              kb_name=batchInfo.kb_name).first()
+    if batchInfoDB:
+        batchInfoDB.update_time = datetime.now()
+    else:
+        session.add(batchInfo)
+
+
+@with_session
+def delete_batchInfo_in_db(session, batchInfo: KnowledgeBatchInfo):
+    batchInfoDB = session.query(KnowledgeBatchInfo).filter_by(batch_name=batchInfo.batch_name,
+                                                              kb_name=batchInfo.kb_name).first()
+    if batchInfoDB:
+        session.delete(batchInfoDB)
+        return True
+    else:
+        return True
+
+
+@with_session
 def add_file_to_db(session,
                    kb_file: KnowledgeFile,
                    ):
-    kb = session.query(KnowledgeBaseModel).filter_by(kb_name=kb_file.kb_name).first()
+    kb = session.query(KnowledgeBaseModel).filter_by(kb_name=kb_file.knowledge_base_name).first()
     if kb:
         # 如果已经存在该文件，则更新文件信息与版本号
         existing_file: KnowledgeFileModel = (session.query(KnowledgeFileModel)
-                                             .filter_by(file_name=kb_file.filename,
-                                                        kb_name=kb_file.kb_name)
+                                             .filter_by(filepath=kb_file.filepath)
                                              .first())
         mtime = kb_file.get_mtime()
         size = kb_file.get_size()
@@ -508,7 +635,13 @@ def add_file_to_db(session,
             new_file = KnowledgeFileModel(
                 file_name=kb_file.filename,
                 file_ext=kb_file.ext,
-                kb_name=kb_file.kb_name,
+                filepath=kb_file.filepath,
+                batch_name=kb_file.batch_name,
+                status=kb_file.status,
+                msg=kb_file.msg,
+                chunk_overlap=kb_file.chunk_overlap,
+                chunk_size=kb_file.chunk_size,
+                kb_name=kb_file.knowledge_base_name,
                 document_loader_name=kb_file.document_loader_name,
                 text_splitter_name=kb_file.text_splitter_name or "SpacyTextSplitter",
                 file_mtime=mtime,
@@ -551,6 +684,18 @@ def list_vector_store_types():
 
 def list_embedding_models():
     return ListResponse(data=list(config.EMBEDDING_DICT.keys()))
+
+
+def text_embedding(
+        text: str = Form(..., description="prompt name", examples=["you are cool"]),
+        embed_model: str = Form(...,
+                                description="when you chat with llm, {query} is variable, chat with rag, {query} {context} are variables",
+                                examples=["bge_m3"]),
+) -> BaseResponse:
+    embeddingModel = config.EMBEDDING_DICT.get(embed_model)
+    query_vector = embeddingModel.embed_query(text)
+
+    return BaseResponse(data=str(query_vector))
 
 
 def list_llms():
@@ -656,117 +801,199 @@ def get_vs_from_kb(kb_name):
         return vector_store, kb
 
 
-class UploadFromUrlRequest(BaseModel):
+class UploadFromUrlRequest(pydantic.BaseModel):
     urls: List[str]
     knowledge_base_name: str
-    chunk_size: int = config.CHUNK_SIZE
-    chunk_overlap: int = config.CHUNK_OVERLAP
+    batch_name: str = './'
+    max_depth: int = pydantic.Field(1, description="max_depth  ")
+    chunk_size: int = pydantic.Field(config.CHUNK_SIZE, description="Response text")
+    chunk_overlap: int = pydantic.Field(config.CHUNK_OVERLAP, description="Response text")
+
+    class Config:
+        json_schema_extra = {
+            "knowledge_base_name": "d",
+            "urls": ["www.qq.com", "www.baidu.com"],
+            "batch_name": "./",
+            "max_depth": 1,
+            "chunk_size": 123,
+            "chunk_overlap": 12
+
+        }
 
 
 def upload_from_url(upload_url_request: UploadFromUrlRequest):
-    failed_files = []
-    # python read file from http url and download it as local file
-    doc_path = get_content_root(upload_url_request.knowledge_base_name)
+    failed_files = {}
+    kb = checkIfKBExists(upload_url_request.knowledge_base_name)
     for url in upload_url_request.urls:
-        # sha1_digest = hashlib.sha1(url.encode("utf-8")).hexdigest()
+        kb_file = None
+        try:
 
-        # 取前 4 位
-        # sha1_digest_short = sha1_digest[:4]
-        # filename = url.split("/")[-1]
-        # if filename == "":
-        #     filename = sha1_digest_short + url.split("/")[-2]
-        # else:
-        #     filename = sha1_digest_short + filename
-        # join webpages subpath
-        # url_subpath = os.path.join(doc_path, 'webpages')
-        # if os.path.splitext(filename)[-1]=='':
-        #   filename=filename+'.html'
-        # join kb_path with filename
-        # filePath = os.path.join(url_subpath, filename)
+            loader = RecursiveUrlLoader(
+                url,
+                max_depth=upload_url_request.max_depth,
+            )
+            docs = loader.load()
 
-        # if not os.path.exists(filePath):
-        #     r = 1
-        #     try:
-        #         r = requests.get(url, stream=True)
-        #     except Exception as e:
-        #         failed_files[filename] = str(e)
-        #         continue
-        #     with open(filePath, "wb") as f:
-        #         for chunk in r.iter_content(chunk_size=8192):
-        #             if chunk:
-        #                 f.write(chunk)
-        kfile = KnowledgeFile(type='webpage', filename=url,
-                              knowledge_base_name=upload_url_request.knowledge_base_name)
-        status = add_file_to_db(kfile)
-        if status == False:
-            failed_files[filename] = 'Failed in db'
-        else:
-            Text_splitter = makeSplitter(upload_url_request.chunk_size, upload_url_request.chunk_overlap)
-            texts = kfile.url2Docs(Text_splitter)
-            saveInVectorDB(upload_url_request.knowledge_base_name, texts)
-            # vector_store.add_documents(texts)
-            # vector_store.save_local(vector_store.vs_path, 'index')
-    return BaseResponse(code=200, msg="文件上传与向量化完成", data={"failed_files": failed_files})
+            html2text = Html2TextTransformer()
+            docs_transformed = html2text.transform_documents(docs)
+            for doc in docs_transformed:
+                # doc.page_content[:]
+                childUrl = doc.metadata['source']
+                kb_file = None
+                if not upload_url_request.batch_name.endswith('/'):
+                    kb_file = KnowledgeFile(filepath=childUrl, type='webpage', ext='.url',
+                                            batch_name=upload_url_request.batch_name,
+                                            filename=upload_url_request.batch_name + '/' + childUrl,
+                                            knowledge_base_name=upload_url_request.knowledge_base_name,
+                                            chunk_overlap=upload_url_request.chunk_overlap,
+                                            chunk_size=upload_url_request.chunk_size)
+                else:
+                    kb_file = KnowledgeFile(filepath=childUrl, type='webpage', ext='.url',
+                                            batch_name=upload_url_request.batch_name,
+                                            filename=upload_url_request.batch_name + childUrl,
+                                            knowledge_base_name=upload_url_request.knowledge_base_name,
+                                            chunk_overlap=upload_url_request.chunk_overlap,
+                                            chunk_size=upload_url_request.chunk_size)
+                batchInfo = KnowledgeBatchInfo(batch_name=upload_url_request.batch_name,
+                                               kb_name=upload_url_request.knowledge_base_name,
+                                               chunk_size=upload_url_request.batch_name,
+                                               chunk_overlap=upload_url_request.chunk_overlap)
+                Text_splitter = makeSplitter(upload_url_request.chunk_size, upload_url_request.chunk_overlap)
+                chunkDocuments = kb_file.url2Docs(Text_splitter)
+                delete_webpage(upload_url_request.knowledge_base_name, str(childUrl))
+
+                store_vectors_by_batch(upload_url_request.knowledge_base_name, kb.embed_model, chunkDocuments)
+
+                add_file_to_db(kb_file)
+                add_batchInfo_to_db(batchInfo)
+        except Exception as e:
+            msg = f"embedding ‘{kb_file.filename}’ to ‘{upload_url_request.knowledge_base_name}’ failed with some error {e}"
+            failed_files[kb_file.filename] = msg
+            kb_file.msg = msg
+            kb_file.status = 'failure'
+            logger.error(e)
+            # add_file_to_db(kb_file)
+            # add_batchInfo_to_db(batchInfo)
+    return BaseResponse(code=200, msg="url uploading completed", data={"failed_files": failed_files})
 
 
 @with_session
 def delete_file_from_db(session, kb_file: KnowledgeFile):
-    existing_file = session.query(KnowledgeFileModel).filter_by(file_name=kb_file.filename,
-                                                                kb_name=kb_file.kb_name).first()
+    existing_file = session.query(KnowledgeFileModel).filter_by(filepath=kb_file.filepath).first()
     if existing_file:
         session.delete(existing_file)
-        session.commit()
 
-        kb = session.query(KnowledgeBaseModel).filter_by(kb_name=kb_file.kb_name).first()
+        kb = session.query(KnowledgeBaseModel).filter_by(kb_name=kb_file.knowledge_base_name).first()
         if kb:
             kb.file_count -= 1
-            session.commit()
+        #     batchExisted = session.query(BatchInfo).filter_by(batchname=kb_file.batch_name, kb=kb_file.knowledge_base_name).first()
+        #     batchExisted.update_time = datetime.now()
+        session.commit()
     return True
 
 
+def delete_batch(knowledge_base_name: str = Body(..., examples=["samples"]),
+                 batch_name: str = Body(..., examples=["images"]),
+                 ):
+    docRootPath = get_content_root(knowledge_base_name)
+    batchRoot = Path(docRootPath) / Path(batch_name)
+
+    #
+    # all_files = [file for file in docRootPath.rglob('*') if file.is_file()
+    #              and file.suffix.lower() not in LOADER_DICT['ImageOCRLoader']
+    #              and file.suffix.lower() not in LOADER_DICT['OCISpeechLoader']]
+    ### filter the files not begin with ocr and asr
+    files_with_batch_name = [str(Path(file).relative_to(docRootPath)) for file in batchRoot.rglob('*') if
+                             file.is_file()]
+    resp = delete_docs(knowledge_base_name, filenames=files_with_batch_name)
+    os.rmdir(str(batchRoot))
+    batchInfo = KnowledgeBatchInfo(batch_name=batch_name,
+                                   kb_name=knowledge_base_name,
+                                   )
+    delete_batchInfo_in_db(batchInfo)
+    return resp
+
+
+def delete_webpage(knowledge_base_name: str = Body(..., examples=["samples"]),
+                   url=Body(..., examples=["https://xxxx"])) -> DeleteResponse:
+    knowledge_base_name = urllib.parse.unquote(knowledge_base_name)
+    type = 'webpage'
+    kb = checkIfKBExists(knowledge_base_name)
+    if kb is None:
+        return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}")
+    failed_files = {}
+    # contentRoot = get_content_root(knowledge_base_name)
+
+    kb_file = KnowledgeFile(filepath=url,
+                            knowledge_base_name=knowledge_base_name, type=type)
+    vector_store, _ = get_vs_from_kb(knowledge_base_name)
+    logger.info("## deleting file: {}", kb_file.filepath)
+    # check if the file exists
+    status = delete_file_from_db(kb_file)
+    if status == False:
+        failed_files[filename] = 'Failed to delete it in sqlite db'
+
+    if isinstance(vector_store, OracleAIVector):
+        try:
+            vector_store.delete_embeddings([kb_file.filepath])
+        except Exception as e:
+            logger.error(e)
+            failed_files[filename] = 'Failed to delete it in vectorDB'
+            pass
+    else:
+        ids = [k for k, v in vector_store.docstore._dict.items() if
+               v.metadata.get("source") == kb_file.filepath]
+        #    check faiss content
+        # logger.info(vector_store.docstore._dict)
+        if len(ids) > 0:
+            vector_store.delete(ids)
+            vector_store.save_local(vector_store.vs_path, 'index')
+
+    return DeleteResponse(code=200, msg=f"File deletion ended", data={"failed_files": failed_files})
+
+
 def delete_docs(knowledge_base_name: str = Body(..., examples=["samples"]),
-                file_names: List[str] = Body(..., examples=[["file_name.md", "test.txt"]]),
+                filenames: List[str] = Body(..., examples=[["file_name.md", "test.txt"]]),
                 ) -> DeleteResponse:
     knowledge_base_name = urllib.parse.unquote(knowledge_base_name)
     kb = checkIfKBExists(knowledge_base_name)
     if kb is None:
         return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}")
     failed_files = {}
-    doc_path = get_content_root(knowledge_base_name)
-    for file_name in file_names:
+    # contentRoot = get_content_root(knowledge_base_name)
+
+    for filename in filenames:
+        kb_file = KnowledgeFile(filename=filename,
+                                knowledge_base_name=knowledge_base_name)
         vector_store, _ = get_vs_from_kb(knowledge_base_name)
-        # join doc_path with file_name
-        logger.info("##pocessing file_name: ",file_name)
-        file = os.path.join(doc_path, file_name)
+        logger.info("## deleting file: {}", kb_file.filepath)
         # check if the file exists
-        if os.path.exists(file):
-            kb_file = KnowledgeFile(filename=file_name,
-                                    knowledge_base_name=knowledge_base_name)
+        if os.path.exists(kb_file.filepath):
             # python delete a file from os
-            os.remove(file)
+            os.remove(kb_file.filepath)
             status = delete_file_from_db(kb_file)
             if status == False:
-                failed_files[file_name] = 'Failed to delete it in db'
+                failed_files[filename] = 'Failed to delete it in sqlite db'
 
             if isinstance(vector_store, OracleAIVector):
                 try:
                     vector_store.delete_embeddings([kb_file.filepath])
                 except Exception as e:
                     logger.error(e)
-                    failed_files[file_name] = 'Failed to delete it in vectorDB'
+                    failed_files[filename] = 'Failed to delete it in vectorDB'
                     pass
             else:
                 ids = [k for k, v in vector_store.docstore._dict.items() if
                        v.metadata.get("source") == kb_file.filepath]
-                logger.info(vector_store.docstore._dict)
-                # aa=vector_store.index_to_docstore_id[0]
+                #    check faiss content
+                # logger.info(vector_store.docstore._dict)
                 if len(ids) > 0:
                     vector_store.delete(ids)
                     vector_store.save_local(vector_store.vs_path, 'index')
         else:
-            failed_files[file_name] = 'File does not exist'
+            failed_files[filename] = 'File does not exist'
 
-    return DeleteResponse(code=200, msg=f"文件删除完成", data={"failed_files": failed_files})
+    return DeleteResponse(code=200, msg=f"File deletion ended", data={"failed_files": failed_files})
 
 
 from langchain_community.vectorstores import OpenSearchVectorSearch
@@ -846,138 +1073,26 @@ import concurrent.futures
 executor = concurrent.futures.ThreadPoolExecutor(max_workers=99)
 
 
-async def upload_audio_from_object_storage(
+def upload_audio_from_object_storage(
         namespace: str = Body(..., description="bucket namespace", examples=["sehubjapacprod"]),
         bucket: str = Body('testo', description="bucket name"),
         object_prefix: str = Body('', description="object_prefix e.g. folder1/"),
+        batch_name: str = Body('./',
+                               description="knowledge base batch prefix name for this batch uploading  e.g. batch1"),
         knowledge_base_name: str = Body(..., description="knowledge_base_name  ", examples=["samples"]),
         chunk_size: int = Body(config.CHUNK_SIZE, description="知识库中单段文本最大长度"),
         chunk_overlap: int = Body(config.CHUNK_OVERLAP, description="知识库中相邻文本重合长度"),
         language: str = Body('en', description="language for ASR this audio"),
 ) -> BaseResponse:
     if knowledge_base_name is None or knowledge_base_name.strip() == "":
-        return BaseResponse(code=404, msg="知识库名称不能为空，请重新填写知识库名称")
+        return BaseResponse(code=404, msg="kb name can not be empty ")
     kb = checkIfKBExists(knowledge_base_name)
     if kb is None:
-        return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}")
+        return BaseResponse(code=404, msg=f"not found this kb {knowledge_base_name}")
     content_root = get_content_root(knowledge_base_name)
-    signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
     ## for future support different regions
     # config_oci = {'region': signer.region, 'tenancy':  signer.tenancy_id}
     futures = []
-    object_storage_client = oci.object_storage.ObjectStorageClient(config={}, signer=signer)
-
-    def output():
-        next_starts_with = None
-        saved_disk_files = []
-        while True:
-            try:
-                response = object_storage_client.list_objects(namespace, bucket, start=next_starts_with,
-                                                              prefix=object_prefix,
-                                                              fields='size,timeCreated,timeModified,storageTier',
-                                                              retry_strategy=oci.retry.DEFAULT_RETRY_STRATEGY)
-
-            except Exception as e:
-                progress_obj = {
-                    'errors': str(e),
-                }
-                check_vdb_init_status[knowledge_base_name] = progress_obj
-                logger.info('errors ', str(e))
-                return BaseResponse(code=500, msg=str(e))
-
-            next_starts_with = response.data.next_start_with
-            for object_file in response.data.objects:
-                logger.info(object_file.name)
-                obj_resp = object_storage_client.get_object(
-                    namespace_name=namespace,
-                    bucket_name=bucket,
-                    object_name=object_file.name,
-                )
-                data = obj_resp.data
-                ### delete old vs data and sqlite data and os fs data
-                delete_docs(knowledge_base_name, [object_file.name])
-                if object_file.name.endswith('.wav'):
-                    futures.append(
-                        executor.submit(write_object, content_root, f'{namespace}/{bucket}/{object_file.name}', data))
-                    progress_obj = {
-                        'details': f'downloading {object_file.name} ',
-                    }
-                    check_vdb_init_status[knowledge_base_name] = progress_obj
-                    yield f'downloading {object_file.name} '
-                    saved_disk_files.append(object_file.name)
-
-            if not next_starts_with:
-                break
-        concurrent.futures.wait(futures)
-        kb_files = [KnowledgeFile(type='audio', knowledge_base_name=knowledge_base_name,
-                                  filename=f'{namespace}/{bucket}/{objectName}') for objectName in
-                    saved_disk_files]
-
-        logger.info('vectorize audio files .....')
-        i = 0
-        msg_array = []
-        msg = ""
-        for kb_file in tqdm(kb_files):
-            try:
-                text_splitter = makeSplitter(chunk_size, chunk_overlap)
-                # chunkDocuments = kb_file.file2text(text_splitter)
-                objectPathArr = kb_file.filename.split('/')
-                # ns = objectPathArr[0]
-                # bucket = objectPathArr[1]
-                object = "/".join(objectPathArr[2:])
-                texts = ociSpeechASRLoader(namespace, bucket, object, language)
-                document = Document(page_content=texts)
-                document.metadata['source'] = kb_file.filepath
-                chunkDocuments = text_splitter.split_documents([document])
-                store_vectors_by_batch(knowledge_base_name, kb.embed_model, chunkDocuments)
-                status = add_file_to_db(kb_file)
-
-                if not status:
-                    msg = f"添加文件‘{kb_file.filename}’到sqlite数据库记录时出错：已跳过。"
-                    logger.info(msg)
-            except:
-                msg = f"添加文件‘{kb_file.filename}’到vector store‘{knowledge_base_name}’时vectorize出错："
-
-                logger.info(msg)
-            i = i + 1
-            progress_obj = {
-                "total": len(kb_files),
-                "finished": i,
-                "current_document": kb_file.filename,
-                'details': msg_array,
-                'chunk_size': chunk_size,
-                'chunk_overlap': chunk_overlap
-            }
-            progress_obj['details'].append({'file_name': kb_file.filename, 'msg': msg})
-
-            check_vdb_init_status[knowledge_base_name] = progress_obj
-
-            yield f'embedding {kb_file.filename} '
-
-    return StreamingResponse(output(), media_type="text/event-stream")
-
-
-async def upload_from_object_storage(
-        namespace: str = Body(..., description="bucket namespace", examples=["sehubjapacprod"]),
-        bucket: str = Body('testo', description="bucket name"),
-        object_prefix: str = Body('', description="object_prefix e.g. folder1/"),
-        knowledge_base_name: str = Body(..., description="knowledge_base_name  ", examples=["samples"]),
-        chunk_size: int = Body(config.CHUNK_SIZE, description="知识库中单段文本最大长度"),
-        chunk_overlap: int = Body(config.CHUNK_OVERLAP, description="知识库中相邻文本重合长度"),
-) -> BaseResponse:
-    if knowledge_base_name is None or knowledge_base_name.strip() == "":
-        return BaseResponse(code=404, msg="知识库名称不能为空，请重新填写知识库名称")
-    kb = checkIfKBExists(knowledge_base_name)
-    embed_model = kb.embed_model
-    vs_type = kb.vs_type
-    if kb is None:
-        return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}")
-    content_root = get_content_root(knowledge_base_name)
-    signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
-    ## for future support different regions
-    # config_oci = {'region': signer.region, 'tenancy':  signer.tenancy_id}
-    futures = []
-
     object_storage_client = oci.object_storage.ObjectStorageClient(**init_oci_auth(config.auth_type))
 
     def output():
@@ -1007,17 +1122,148 @@ async def upload_from_object_storage(
                     object_name=object_file.name,
                 )
                 data = obj_resp.data
+                objectNameWithBatchPrefix = Path(batch_name) / Path(object_file.name)
+
+                if object_file.name.endswith('.wav'):
+                    ### delete old vs data and sqlite data and os fs data
+                    delete_docs(knowledge_base_name, [str(objectNameWithBatchPrefix)])
+                    futures.append(
+                        executor.submit(write_object, content_root, str(objectNameWithBatchPrefix), data))
+                    progress_obj = {
+                        'details': f'downloading {object_file.name} ',
+                    }
+                    check_vdb_init_status[knowledge_base_name] = progress_obj
+                    yield f'downloading {object_file.name} '
+                    saved_disk_files.append(str(objectNameWithBatchPrefix))
+
+            if not next_starts_with:
+                break
+        concurrent.futures.wait(futures)
+        kb_files = [KnowledgeFile(type='audio', knowledge_base_name=knowledge_base_name,
+                                  filename=objectName) for objectName in
+                    saved_disk_files]
+
+        logger.info('vectorize audio files .....')
+        i = 0
+        msg_array = []
+        msg = ""
+        for kb_file in tqdm(kb_files):
+            try:
+                kb_file.batch_name = batch_name
+                kb_file.chunk_overlap = chunk_overlap
+                kb_file.chunk_size = chunk_size
+                kb_file.knowledge_base_name = knowledge_base_name
+                batchInfo = KnowledgeBatchInfo(batch_name=batch_name,
+                                               kb_name=knowledge_base_name,
+                                               chunk_size=chunk_size,
+                                               chunk_overlap=chunk_overlap)
+                text_splitter = makeSplitter(chunk_size, chunk_overlap)
+                audioAbsolutePath = kb_file.filepath
+                parentDir = Path(content_root) / Path(batch_name)
+                relativePath = Path(audioAbsolutePath).relative_to(parentDir)
+                asrDir = Path(content_root) / Path('asr')
+                audioAsrTextFilePath = asrDir / Path(str(relativePath) + '.txt')
+
+                # batchPath =Path()
+                # relative_paths = [str(relativePath ) for file in all_files]
+
+                texts = ociSpeechASRLoader(namespace, bucket, str(relativePath), language)
+                if not audioAsrTextFilePath.parent.exists():
+                    audioAsrTextFilePath.parent.mkdir(parents=True)
+                with open(str(audioAsrTextFilePath), "w") as f:
+                    f.write(texts)
+                document = Document(page_content=texts)
+                document.metadata['source'] = audioAbsolutePath
+                chunkDocuments = text_splitter.split_documents([document])
+                store_vectors_by_batch(knowledge_base_name, kb.embed_model, chunkDocuments)
+
+            except Exception as e:
+                msg = f"添加文件‘{kb_file.filename}’到vector store‘{knowledge_base_name}’时vectorize出错： {e}"
+                kb_file.msg = msg
+                kb_file.status = 'failure'
+                logger.error(msg)
+            i = i + 1
+            progress_obj = {
+                "total": len(kb_files),
+                "finished": i,
+                "current_document": kb_file.filename,
+                'details': msg_array,
+                'chunk_size': chunk_size,
+                'chunk_overlap': chunk_overlap
+            }
+            progress_obj['details'].append({'file_name': kb_file.filename, 'msg': msg})
+
+            check_vdb_init_status[knowledge_base_name] = progress_obj
+            add_file_to_db(kb_file)
+            add_batchInfo_to_db(batchInfo)
+
+            yield f'embedding {kb_file.filename} '
+
+    return StreamingResponse(output(), media_type="text/event-stream")
+
+
+async def upload_from_object_storage(
+        namespace: str = Body(..., description="bucket namespace", examples=["sehubjapacprod"]),
+        bucket: str = Body('testo', description="bucket name"),
+        object_prefix: str = Body('', description="object_prefix e.g. folder1/"),
+        batch_name: str = Body('./',
+                               description="knowledge base batch prefix name for this batch uploading  e.g. batch1"),
+        knowledge_base_name: str = Body(..., description="knowledge_base_name  ", examples=["samples"]),
+        chunk_size: int = Body(config.CHUNK_SIZE, description="知识库中单段文本最大长度"),
+        chunk_overlap: int = Body(config.CHUNK_OVERLAP, description="知识库中相邻文本重合长度"),
+) -> BaseResponse:
+    if knowledge_base_name is None or knowledge_base_name.strip() == "":
+        return BaseResponse(code=404, msg="知识库名称不能为空，请重新填写知识库名称")
+    kb = checkIfKBExists(knowledge_base_name)
+    if kb is None:
+        return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}")
+    content_root = get_content_root(knowledge_base_name)
+    ## for future support different regions
+    # config_oci = {'region': signer.region, 'tenancy':  signer.tenancy_id}
+    futures = []
+
+    object_storage_client = oci.object_storage.ObjectStorageClient(**init_oci_auth(config.auth_type))
+
+    def output():
+        next_starts_with = None
+        saved_disk_files = []
+        while True:
+            try:
+                response = object_storage_client.list_objects(namespace, bucket, start=next_starts_with,
+                                                              prefix=object_prefix,
+                                                              fields='size,timeCreated,timeModified,storageTier',
+                                                              retry_strategy=oci.retry.DEFAULT_RETRY_STRATEGY)
+
+            except Exception as e:
+                progress_obj = {
+                    'errors': str(e),
+                }
+                check_vdb_init_status[knowledge_base_name] = progress_obj
+                logger.info('errors {}', str(e))
+                return BaseResponse(code=500, msg=str(e))
+
+            next_starts_with = response.data.next_start_with
+            for object_file in response.data.objects:
+                logger.info(object_file.name)
+                obj_resp = object_storage_client.get_object(
+                    namespace_name=namespace,
+                    bucket_name=bucket,
+                    object_name=object_file.name,
+                )
+                data = obj_resp.data
                 ### delete old vs data and sqlite data and os fs data
                 delete_docs(knowledge_base_name, [object_file.name])
                 if data.content == b'':
                     continue
-                futures.append(executor.submit(write_object, content_root, object_file.name, data))
+                parentDir = Path(content_root) / Path(batch_name)
+                futures.append(executor.submit(write_object, str(parentDir), object_file.name, data))
                 progress_obj = {
                     'details': f'downloading {object_file.name} ',
                 }
                 check_vdb_init_status[knowledge_base_name] = progress_obj
                 yield f'downloading {object_file.name} '
-                saved_disk_files.append(object_file.name)
+                fileNameInKB = Path(batch_name) / Path(object_file.name)
+                saved_disk_files.append(str(fileNameInKB))
 
             if not next_starts_with:
                 break
@@ -1031,18 +1277,27 @@ async def upload_from_object_storage(
         for kb_file in tqdm(kb_files):
             try:
 
+                kb_file.batch_name = batch_name
+                kb_file.chunk_overlap = chunk_overlap
+                kb_file.chunk_size = chunk_size
+                kb_file.knowledge_base_name = knowledge_base_name
+                batchInfo = KnowledgeBatchInfo(batch_name=batch_name,
+                                               kb_name=knowledge_base_name,
+                                               chunk_size=chunk_size,
+                                               chunk_overlap=chunk_overlap)
+
                 Text_splitter = makeSplitter(chunk_size, chunk_overlap)
                 chunkDocuments = kb_file.file2text(Text_splitter)
+
                 store_vectors_by_batch(knowledge_base_name, kb.embed_model, chunkDocuments)
-                status = add_file_to_db(kb_file)
 
-                if not status:
-                    msg = f"添加文件‘{kb_file.filename}’到sqlite数据库记录时出错：已跳过。"
-                    logger.info(msg)
-            except:
-                msg = f"添加文件‘{kb_file.filename}’到vector store‘{knowledge_base_name}’时vectorize出错："
+            except Exception as e:
+                msg = f"添加文件‘{kb_file.filename}’到vector store ‘{knowledge_base_name}’ 时vectorize出错：{e}"
 
-                logger.info(msg)
+                logger.error(msg)
+                kb_file.msg = msg
+                kb_file.status = 'failure'
+
             i = i + 1
             progress_obj = {
                 "total": len(kb_files),
@@ -1055,13 +1310,16 @@ async def upload_from_object_storage(
             progress_obj['details'].append({'file_name': kb_file.filename, 'msg': msg})
 
             check_vdb_init_status[knowledge_base_name] = progress_obj
-
+            add_file_to_db(kb_file)
+            add_batchInfo_to_db(batchInfo)
             yield f'embedding {kb_file.filename} '
 
     return StreamingResponse(output(), media_type="text/event-stream")
 
 
 def upload_docs(files: List[UploadFile] = File(..., description="上传文件，支持多文件"),
+                batch_name: str = Form("./", description="the prefix directory path for this batch file uploading",
+                                       examples=["./"]),
                 knowledge_base_name: str = Form(..., description="知识库名称", examples=["samples"]),
                 override: bool = Form(False, description="覆盖已有文件"),
                 chunk_size: int = Form(config.CHUNK_SIZE, description="知识库中单段文本最大长度"),
@@ -1083,30 +1341,43 @@ def upload_docs(files: List[UploadFile] = File(..., description="上传文件，
 
     # 先将上传的文件保存到磁盘
     saved_disk_files = []
-    for result in _save_files_in_thread(files, knowledge_base_name=knowledge_base_name, override=override):
+    for result in _save_files_in_thread(files, knowledge_base_name=knowledge_base_name, override=override,
+                                        batch_prefix=batch_name):
         filename = result["data"]["file_name"]
         if result["code"] != 200:
             failed_files[filename] = result["msg"]
         else:
             saved_disk_files.append(filename)
-    kb_files = [KnowledgeFile(filename=file, knowledge_base_name=knowledge_base_name) for file in saved_disk_files]
+
+    kb_files = [KnowledgeFile(filename=str(Path(batch_name) / file), knowledge_base_name=knowledge_base_name) for file
+                in saved_disk_files]
     logger.info('vectorize uploaded docs...')
-    i = 0
     for kb_file in tqdm(kb_files):
         try:
             text_splitter = makeSplitter(chunk_size, chunk_overlap)
             chunkDocuments = kb_file.file2text(text_splitter, ocr_lang)
             store_vectors_by_batch(knowledge_base_name, kb.embed_model, chunkDocuments)
-            status = add_file_to_db(kb_file)
+            kb_file.batch_name = batch_name
 
-            if not status:
-                msg = f"adding file ‘{kb_file.filename}’ to sqlite db failed：skip。"
-                failed_files[kb_file.filename] = msg
-                logger.info(msg)
+            kb_file.chunk_overlap = chunk_overlap
+            kb_file.chunk_size = chunk_size
+            kb_file.knowledge_base_name = knowledge_base_name
+            batchInfo = KnowledgeBatchInfo(batch_name=batch_name,
+                                           kb_name=knowledge_base_name,
+                                           chunk_size=chunk_size,
+                                           chunk_overlap=chunk_overlap)
+
+            add_file_to_db(kb_file)
+            add_batchInfo_to_db(batchInfo)
+
         except Exception as e:
             msg = f"embedding ‘{kb_file.filename}’ to ‘{knowledge_base_name}’ failed with some error {e}"
             failed_files[kb_file.filename] = msg
+            kb_file.msg = msg
+            kb_file.status = 'failure'
             logger.error(e)
+            add_file_to_db(kb_file)
+            add_batchInfo_to_db(batchInfo)
 
     return BaseResponse(code=200, msg="files uploaded and embedded", data={"failed_files": failed_files})
 
@@ -1168,9 +1439,20 @@ def delete_kb_from_db(session, knowledge_base_name: str):
 
 
 def list_files_from_folder(kb_name: str):
-    doc_path = get_content_root(kb_name)
-    return [file for file in os.listdir(doc_path)
-            if os.path.isfile(os.path.join(doc_path, file))]
+    docRootPath = get_content_root(kb_name)
+    docRootPath = Path(docRootPath)
+    #
+    # all_files = [file for file in docRootPath.rglob('*') if file.is_file()
+    #              and file.suffix.lower() not in LOADER_DICT['ImageOCRLoader']
+    #              and file.suffix.lower() not in LOADER_DICT['OCISpeechLoader']]
+    ### filter the files not begin with ocr and asr
+    all_real_files = [str(file) for file in docRootPath.rglob('*') if file.is_file()
+                      and not str(file).startswith('ocr')
+                      and not str(file).startswith('asr')]
+    # Get relative paths to the root directory
+    # relative_paths = [str(file.relative_to(docRootPath)) for file in all_files]
+
+    return all_real_files
 
 
 def files2docs_in_thread(
@@ -1216,6 +1498,14 @@ def files2docs_in_thread(
 check_vdb_init_status = {}
 
 
+def sync_kbot_records(
+        knowledge_base_name: str = Body(..., examples=["samples"]),
+        stub: str = Body('stub', examples=["for json body, no need to input "]),
+) -> ORJSONResponse:
+    json = queryFilesByKB(knowledge_base_name)
+    return ORJSONResponse(json)
+
+
 def check_vector_store_embedding_progress(
         knowledge_base_name: str = Body(..., examples=["samples"]),
         stub: str = Body('stub', examples=["for json body, no need to input "]),
@@ -1243,11 +1533,28 @@ def delete_kb(knowledge_base_name: str = Body(..., examples=["samples"]),
         return BaseResponse(code=404, msg="删除失败")
 
 
+def copy_to_dest_dir(src_dir, dest_dir):
+    # 创建临时目录
+
+    # 遍历源目录中的所有文件和子目录
+    for root, dirs, files in os.walk(src_dir):
+        # 对每个文件，构建目标路径并复制文件
+        for file in files:
+            src_file = os.path.join(root, file)
+            dst_file = os.path.join(dest_dir, os.path.relpath(src_file, src_dir))
+            dst_directory = os.path.dirname(dst_file)
+            # 如果目标目录不存在，则创建
+            os.makedirs(dst_directory, exist_ok=True)
+            shutil.copy2(src_file, dst_file)  # 使用shutil.copy2保留原文件的元数据
+            kb, chunk_size, chunk_overlap = queryEmbedSettingByFile(src_file)
+            # fileEmbeddingSetting = FileEmbeddingSetting(filepath=src_file, kb=kb, chunk_size=chunk_size,
+            #                                             chunk_overlap=chunk_overlap)
+            # add_file_embedding_setting_to_db(fileEmbeddingSetting)
+
+
 def recreate_vector_store(
         knowledge_base_name: str = Body(..., examples=["samples"]),
         embed_model: str = Body(EMBEDDING_MODEL),
-        chunk_size: int = Body(config.CHUNK_SIZE, description="知识库中单段文本最大长度"),
-        chunk_overlap: int = Body(config.CHUNK_OVERLAP, description="知识库中相邻文本重合长度"),
         vector_store_type: str = Body('faiss', description="vs type"),
 ):
     '''
@@ -1286,14 +1593,16 @@ def recreate_vector_store(
             # delete_files_from_db(knowledge_base_name)
             files = list_files_from_folder(knowledge_base_name)
 
-            kb_files = [KnowledgeFile(filename=file, knowledge_base_name=knowledge_base_name) for file in files]
+            kb_files = [KnowledgeFile(filepath=file, knowledge_base_name=knowledge_base_name) for file in files]
             i = 0
             for kb_file in kb_files:
+                kb, chunk_size, chunk_overlap = queryEmbedSettingByFile(file_path=kb_file.filepath)
+
                 msg = ''
                 progress_obj = {
                     "total": len(files),
                     "finished": i,
-                    "current_document": kb_file.filename,
+                    "current_document": kb_file.filepath,
                     'details': msg_array,
                     'chunk_size': chunk_size,
                     'chunk_overlap': chunk_overlap
@@ -1305,12 +1614,12 @@ def recreate_vector_store(
                     status = add_file_to_db(kb_file)
 
                     if not status:
-                        msg = f"添加文件‘{kb_file.filename}’到sqlite‘{knowledge_base_name}’时出错 。已跳过。"
+                        msg = f"添加文件‘{kb_file.filepath}’到sqlite‘{knowledge_base_name}’时出错 。已跳过。"
 
 
 
                 except:
-                    msg = f"添加文件‘{kb_file.filename}’ as vectors ‘{knowledge_base_name}’时出错 。已跳过。"
+                    msg = f"添加文件‘{kb_file.filepath}’ as vectors ‘{knowledge_base_name}’时出错 。已跳过。"
 
                 i = i + 1
                 progress_obj['details'].append({'file_name': kb_file.filename, 'msg': msg})
@@ -1362,6 +1671,7 @@ def makeSimilarDocs(question, kb_name):
     vector_res_arr: List[AskResponseData] = []
     kb = load_kb_from_db(kb_name)
     similar_doc_with_socres = get_docs_with_scores(question, kb_name)
+    contentRoot = get_content_root(kb_name)
     for obj in similar_doc_with_socres:
         doc = obj[0]
         doc_content = doc.page_content
@@ -1373,17 +1683,24 @@ def makeSimilarDocs(question, kb_name):
         # 如果不走Rerank，并且不是Oracle向量数据库，则doc_score是相似性值，这个越大，则越相似。
         # 如果走Rerank，则doc_score是rerank分数，这个是越大，越相关
         if (
-                config.rerankerModel == 'disableReranker' and kb.vs_type == "oracle" and doc_score <= config.score_threshold) \
+                config.rerankerModel == 'disableReranker' and kb.vs_type == "oracle" and doc_score >= config.score_threshold) \
                 or (
                 config.rerankerModel == 'disableReranker' and kb.vs_type != "oracle" and doc_score >= config.score_threshold) \
                 or (config.rerankerModel != 'disableReranker' and doc_score >= config.score_threshold):
             ##获取上下文
             llm_context = llm_context + doc_content
             ##获取Vector DB中的数据源
-            filename = os.path.basename(doc_source)
-            if not config.http_prefix.endswith('/'):
-                config.http_prefix += '/'
-            doc_source = config.http_prefix + f'knowledge_base/download_doc?knowledge_base_name={kb_name}&file_name={filename}'
+
+            # Define the original path and the prefix path
+            contentRootPath = Path(contentRoot)
+            #  and 'html' in doc.metadata['content_type']
+            if doc.metadata.get('content_type', None) is None:
+                original_path = Path(doc_source)
+                # Remove the prefix path
+                filename = original_path.relative_to(contentRootPath)
+                if not config.http_prefix.endswith('/'):
+                    config.http_prefix += '/'
+                doc_source = config.http_prefix + f'knowledge_base/download_doc?knowledge_base_name={kb_name}&file_name={filename}'
 
             askRes = AskResponseData(doc_content, doc_source, doc_score)
             vector_res_arr.append(askRes)

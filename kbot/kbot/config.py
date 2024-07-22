@@ -6,12 +6,12 @@ from llm_prepare import load_llm_model
 from langchain_community.llms import OCIGenAI
 import torch
 from langchain_community.chat_models.oci_generative_ai import ChatOCIGenAI
-
 from modelPrepare import sparkAPI
 from modelPrepare import glm4API
 from modelPrepare import chatgptAPI
 from modelPrepare.aquaAPI import AIQuickActions
 from modelPrepare.ociGenAIAPI import *
+from modelPrepare import qianfanAPI
 from langchain_community.embeddings import CohereEmbeddings
 import llm_keys
 from modelPrepare.remoteAPI import *
@@ -149,17 +149,22 @@ MODEL_DICT = {
     'Meta-Llama-3-8B-Instruct ': remoteModel('Meta-Llama-3-8B-Instruct','http://10.0.0.61:8099/v1','123456',512,0),
     'OCIGenAICohereCmdR':ociCMDR,
     'OCIGenAICohereCmdR+':ociCMDRPlus,
+    #'OCIGenAICohereCmd': ociGenAICohere,
     'OCIGenAILlama3': ociGenAILlama3,
     #'OCIGenAILlama2': ociGenAILlama2,
-    #'Llama3-8B':  remoteModel('/home/ubuntu/ChatGPT/Models/meta/Meta-Llama-3-8B-Instruct','http://146.235.214.184:8098/v1','123456'),
-    #'Llama-3-Typhoon-v1.5-8B':  remoteModel('/mnt/myvolume/typhoon/llama-3-typhoon-v1.5-8b-instruct','http://129.213.63.2:8098/v1','123456',512,0),
+    #'Qwen2-7B-Instruct': remoteModel('Qwen2-7B-Instruct','http://146.235.226.110:8098/v1','123456',512,0),
+    #'Qwen2-7B-Instruct_Https': remoteModel('Qwen2-7B-Instruct','https://chat.oracle.k8scloud.site:8098/v1','123456',512,0),
+    #'Llama-3-8B-Instruct':  remoteModel('/home/ubuntu/ChatGPT/Models/meta/Meta-Llama-3-8B-Instruct','http://146.235.226.110:8098/v1','123456',256,0),
     #'Llama-3-70B-Instruct':  remoteModel('meta-llama/Meta-Llama-3-70B-Instruct','http://141.147.8.181:8098/v1','123456',256,0),
+    #'ooba':  remoteModel('gpt-3.5-turbo','http://10.145.141.77:5000/v1','123456',256,0),
     #'mistral-aqua': AIQuickActions(endpoint='https://modeldeployment.us-sanjose-1.oci.customer-oci.com/ocid1.datasciencemodeldeployment.oc1.us-sanjose-1.amaaaaaaak7gbriae3l7phztdfyhlwjqjgkfcqxwhu62gs5vur4sqryi5nvq'),
+    #'Llama-3-Typhoon-v1.5-8B':  remoteModel('/mnt/myvolume/typhoon/llama-3-typhoon-v1.5-8b-instruct','http://129.213.63.2:8098/v1','123456',512,0),
     #'XingHuo': sparkAPI.SparkLLM(),
     #'ChatGLM4':  glm4API.GLM4(),
     #'ChatGPT' : chatgptAPI.gpt3,
-    #'Qwen-plus': QwenPlus(),
-    #'Cohere-CommandR+': commandRPlus(),
+    'Qwen-plus': QwenPlus(),
+    'Cohere-CommandR+': commandRPlus(),
+    #'ERNIE-4.0-8K-Latest':qianfanAPI.qianfanLLM('ERNIE-4.0-8K-Latest'),
     ######################      local models      ###########################################
     ###   format 1) : local path
     # e.g.  'llama-2-7b-chat':   load_llm_model("/home/ubuntu/ChatGPT/Models/meta/llama2/Llama-2-7b-chat-hf"),

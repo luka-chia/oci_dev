@@ -1,19 +1,18 @@
 from fastapi import FastAPI,Body
-import sys,os,argparse,uvicorn
-import config
-from pathlib import Path
-from typing import Any, List, Mapping, Optional, Dict
-from kb_llm_api import ask_rag, compression_rag, ask_conversational_rag, clear_disable_memory_rag,ask_rag,ask_history_rag
+import  argparse,uvicorn
+from kb_llm_api import   compression_rag, ask_conversational_rag, clear_disable_memory_rag,ask_rag,ask_history_rag
 from fastapi.openapi.docs import (
     get_redoc_html,
     get_swagger_ui_html,
 )
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
-from kb_api import BaseResponse, ListResponse, VectorSearchResponse, create_kb, delete_docs, download_doc, get_kb_info, \
+from kb_api import BaseResponse, ListResponse, VectorSearchResponse, create_kb, delete_batch, delete_docs, download_doc, \
+    get_kb_info, \
     get_llm_info, list_embedding_models, list_kbs, list_llms, list_vector_store_types, query_in_kb, \
-    recreate_vector_store, upload_docs, upload_from_url, check_vector_store_embedding_progress, delete_kb, \
-    DeleteResponse, upload_from_object_storage, upload_audio_from_object_storage
+    recreate_vector_store, upload_docs, upload_from_url, check_vector_store_embedding_progress, sync_kbot_records, \
+    delete_kb, \
+    DeleteResponse, upload_from_object_storage, upload_audio_from_object_storage, text_embedding
 from typing import List
 from kb_llm_api import ask_llm
 from prompt_api import list_prompts, create_prompt, get_prompt, delete_prompt,update_prompt
@@ -201,7 +200,7 @@ async def with_llm(
         prompt_name: str = Body('default',   description="prompt name, will use the corresponding content of prompt",
                                               examples=['default']),
 ):
-    logger.info("\n******** question is:", query)
+    logger.info("\n******** question is: {}", query)
     status: str = "success"
     err_msg: str = ""
     data: list = []
@@ -266,6 +265,11 @@ def create_app():
              response_model=DeleteResponse,
              summary="delete one document"
              )(delete_docs)
+    app.post("/knowledge_base/delete_batch",
+             tags=["Knowledge Base Management"],
+             response_model=DeleteResponse,
+             summary="delete one batch"
+             )(delete_batch)
     app.post("/knowledge_base/delete_kb",
              tags=["Knowledge Base Management"],
              response_model=BaseResponse,
@@ -296,13 +300,10 @@ def create_app():
     app.get("/knowledge_base/download_doc",
             tags=["Knowledge Base Management"],
             summary="download knowledge file")(download_doc)
-    app.post("/knowledge_base/recreate_vector_store",
-             tags=["Knowledge Base Management"],
-             summary="reset kB vector store")(recreate_vector_store)
-    app.post("/knowledge_base/check_vector_store_embedding_progress",
+    app.post("/knowledge_base/sync_kbot_records",
              tags=["Knowledge Base Management"],
              # response_model=ORJSONResponse,
-             summary="check_recreate_vector_store_progress  ")(check_vector_store_embedding_progress)
+             summary="sync_kbot_records ")(sync_kbot_records)
 
 
 
@@ -326,6 +327,9 @@ def create_app():
     app.get("/chat/list_LLMs",
             tags=["LLM"],
             summary="list all llms")(list_llms)
+    app.post("/chat/text_embedding",
+            tags=["LLM"],
+            summary="turn text to embeddings")(text_embedding)
     app.get("/chat/get_llm_info",
             tags=["LLM"],
             summary="get_llm_info")(get_llm_info)
@@ -409,20 +413,9 @@ def run_api(host, port, **kwargs):
     else:
         uvicorn.run(app, host=host, port=port)
 
-def setAutoKbRootPath():
-    if config.KB_ROOT_PATH== 'auto':
-        # 获取当前脚本所在的路径
-        current_file_path = os.path.abspath(__file__)
-        # 获取父目录
-        parent_directory = os.path.dirname(current_file_path)
-        # 获取父目录的父目录
-        grandparent_directory = os.path.dirname(parent_directory)
-        config.KB_ROOT_PATH =Path(grandparent_directory) /'kbroot'
-        logger.info(f"KBroot Path is set in {config.KB_ROOT_PATH}")
 
 
 if __name__ == "__main__":
-    setAutoKbRootPath()
     parser = argparse.ArgumentParser(prog='hub KB rest',
                                      description='About hub knowledge based apis exposed as  rest-svc,  ')
     parser.add_argument("--host", type=str, default="0.0.0.0")

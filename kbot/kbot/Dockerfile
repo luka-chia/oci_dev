@@ -9,7 +9,6 @@ ENV port=80
 # Install any needed packages specified in requirements.txt
 # in case of requiring oci api key in docker, pls uncomment below, though not recommended.
 # RUN mkdir ~/.oci; cp oci_apikey_configs/* ~/.oci/ ; chmod 400 -R ~/.oci/
-RUN pip install oracledb-2.0.0.dev20231121-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
 RUN pip install --no-cache-dir -r requirements.txt
 
 
