@@ -1,5 +1,5 @@
 # python script for sending SMTP configuration with Oracle Cloud Infrastructure Email Delivery
-import smtplib 
+import smtplib
 import email.utils
 from email.message import EmailMessage
 import ssl
@@ -7,39 +7,39 @@ import ssl
 # Replace sender@example.com with your "From" address.
 # This address must be verified.
 # this is the approved sender email
-SENDER = 'luka@byd.hw69.cn'
+SENDER = 'luka@bydmail.hw69.cn'
 SENDERNAME = 'luka_byd'
- 
+
 # Replace recipient@example.com with a "To" address. If your account
 # is still in the sandbox, this address must be verified.
 RECIPIENT = '714250945@qq.com'
- 
+
 # Replace the USERNAME_SMTP value with your Email Delivery SMTP username.
 USERNAME_SMTP = 'ocid1.user.oc1..aaaaaaaafkg344hepfwbzyrdzbi334q2ncyjforez3pw7kegmyqut5l7eorq@ocid1.tenancy.oc1..aaaaaaaaro7aox2fclu4urtpgsbacnrmjv46e7n4fw3sc2wbq24l7dzf3kba.tf.com'
- 
+
 # Put the PASSWORD value from your Email Delivery SMTP password into the following file.
 PASSWORD_SMTP_FILE = 'ociemail.config'
- 
+
 # If you're using Email Delivery in a different region, replace the HOST value with an appropriate SMTP endpoint.
 # Use port 25 or 587 to connect to the SMTP endpoint.
 HOST = "smtp.email.ap-singapore-1.oci.oraclecloud.com"
 PORT = 587
- 
+
 # The subject line of the email.
 SUBJECT = 'Email Delivery Test (Python smtplib)'
- 
+
 # The email body for recipients with non-HTML email clients.
 BODY_TEXT = ("Email Delivery Test\r\n"
              "This email was sent through the Email Delivery SMTP "
              "Interface using the Python smtplib package."
             )
- 
+
 # The HTML body of the email.
 BODY_HTML = """<html>
 <head></head>
 <body>
-  <h1>Email Delivery SMTP Email Test</h1>
-  <p>This email was sent with Email Delivery using the
+  <h1>BYD news notification</h1>
+  <p>This BYD email was sent with Email Delivery from BYD Center using the
     <a href='https://www.python.org/'>Python</a>
     <a href='https://docs.python.org/3/library/smtplib.html'>
     smtplib</a> library.</p>
@@ -64,7 +64,7 @@ msg.add_alternative(BODY_TEXT, subtype='text')
 msg.add_alternative(BODY_HTML, subtype='html')
 
 # Try to send the message.
-try: 
+try:
     server = smtplib.SMTP(HOST, PORT)
     server.ehlo()
     # most python runtimes default to a set of trusted public CAs that will include the CA used by OCI Email Delivery.
