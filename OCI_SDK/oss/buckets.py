@@ -11,15 +11,40 @@ import oci
 # https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm#SDK_and_CLI_Configuration_File
 # for more info
 config = oci.config.from_file()
-#config.update({"region": "ap-singapore-1"})
+config.update({"region": "ap-singapore-1"})
 
 
 # Initialize service client with default config file
 object_storage_client = oci.object_storage.ObjectStorageClient(config)
 
+def test_token_authentication():
+    # step 1
+    # oci session authenticate --no-browser; this command invoke the url=https://auth.ap-singapore-1.oraclecloud.com/v1/token/upst/actions/GenerateUpst
+    # oci session refresh --profile token_test
+    # oci session authenticate --no-browser --session-expiration-in-minutes <token-persistence-time-in-minutes> --profile <profile_name> --auth security_token
+    config = oci.config.from_file(profile_name='luka')
+    token_file = config['security_token_file']
+    token = None
+    with open(token_file, 'r') as f:
+        token = f.read()
+    
+    # step 2
+    private_key = oci.signer.load_private_key_from_file(config['key_file'])
+    signer = oci.auth.signers.SecurityTokenSigner(token, private_key) 
+    # signer = oci.auth.signers.get_resource_principals_signer()
+    # list_region_subscriptions(config['tenancy'])
+    client = oci.object_storage.ObjectStorageClient({"region": "ap-singapore-1"}, signer = signer)
 
-# Send the request to service, some parameters are not required, see API
-# doc for more info
+    # step 3
+    list_objects_response = client.list_objects(
+        namespace_name="sehubjapacprod",
+        bucket_name="Luka-bucket"
+        )
+
+    # Get the data from response
+    print(list_objects_response.data)
+
+
 def list_bucket():
     list_buckets_response = object_storage_client.list_buckets(
     namespace_name="sehubjapacprod",
@@ -27,6 +52,14 @@ def list_bucket():
 
     # Get the data from response
     print(list_buckets_response.data)
+
+def list_objects():
+    list_objects_response = object_storage_client.list_objects(
+    namespace_name="sehubjapacprod",
+    bucket_name="Luka-bucket")
+
+    # Get the data from response
+    print(list_objects_response.data)
 
 def put_o():
     put_object_response = object_storage_client.put_object(
@@ -38,4 +71,6 @@ def put_o():
 
     print(put_object_response.headers)
 
-put_o()
+# put_o()
+# list_objects()
+test_token_authentication()
