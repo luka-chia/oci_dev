@@ -22,14 +22,14 @@ def test_token_authentication():
     # oci session authenticate --no-browser; this command invoke the url=https://auth.ap-singapore-1.oraclecloud.com/v1/token/upst/actions/GenerateUpst
     # oci session refresh --profile token_test
     # oci session authenticate --no-browser --session-expiration-in-minutes <token-persistence-time-in-minutes> --profile <profile_name> --auth security_token
-    config = oci.config.from_file(profile_name='luka')
-    token_file = config['security_token_file']
+    # config = oci.config.from_file(profile_name='luka')
+    token_file = u'C:\\Users\\lulujia\\.oci\\oci_token'
     token = None
     with open(token_file, 'r') as f:
         token = f.read()
     
     # step 2
-    private_key = oci.signer.load_private_key_from_file(config['key_file'])
+    private_key = oci.signer.load_private_key_from_file(u'C:\\Users\\lulujia\\.oci\\oci_api_key.pem')
     signer = oci.auth.signers.SecurityTokenSigner(token, private_key) 
     # signer = oci.auth.signers.get_resource_principals_signer()
     # list_region_subscriptions(config['tenancy'])
