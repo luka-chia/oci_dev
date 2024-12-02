@@ -9,10 +9,14 @@ import {
   S3ServiceException,
 } from "@aws-sdk/client-s3";
 
+function getHtml(template) {
+  return template.join("\n");
+}
+
 /**
  * List the Amazon S3 buckets in your account.
  */
-export const main = async () => {
+export const listBuckets = async () => {
   const client = new S3Client({
     region: 'us-east-1',
     credentials: fromCognitoIdentityPool({
@@ -57,6 +61,4 @@ export const main = async () => {
 // snippet-end:[s3.JavaScript.buckets.listBucketsV3]
 
 // Invoke main function if this file was run directly.
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main();
-}
+listBuckets();
