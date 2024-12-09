@@ -11,7 +11,7 @@ import oci
 # https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm#SDK_and_CLI_Configuration_File
 # for more info
 config = oci.config.from_file()
-config.update({"region": "ap-singapore-1"})
+config.update({"region": "us-ashburn-1"})
 
 
 # Initialize service client with default config file
@@ -56,7 +56,7 @@ def list_bucket():
 def list_objects():
     list_objects_response = object_storage_client.list_objects(
     namespace_name="sehubjapacprod",
-    bucket_name="Luka-bucket")
+    bucket_name="Luka-bucket-ashburn")
 
     # Get the data from response
     print(list_objects_response.data)
@@ -72,5 +72,5 @@ def put_o():
     print(put_object_response.headers)
 
 # put_o()
-# list_objects()
-test_token_authentication()
+list_objects()
+# test_token_authentication()
