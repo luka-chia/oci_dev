@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "dgSpecHash": "/uKAZfYWPz2Egpc0QGA9UoVuAhIGsee8cz8R0vAEuZXVrma/kREHgsswgbbbwvR5TQC7S4tRwAIbW98x5ix+bQ==",
+  "success": true,
+  "projectFilePath": "D:\\Dev\\Program\\oci_dev\\OCI_Functions\\dotnet\\queue_putmessage\\src\\Function\\Function.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\lulujia\\.nuget\\packages\\fnproject.fn.fdk\\1.0.9\\fnproject.fn.fdk.1.0.9.nupkg.sha512",
+    "C:\\Users\\lulujia\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
+    "C:\\Users\\lulujia\\.nuget\\packages\\microsoft.identitymodel.jsonwebtokens\\6.7.1\\microsoft.identitymodel.jsonwebtokens.6.7.1.nupkg.sha512",
+    "C:\\Users\\lulujia\\.nuget\\packages\\microsoft.identitymodel.logging\\6.7.1\\microsoft.identitymodel.logging.6.7.1.nupkg.sha512",
+    "C:\\Users\\lulujia\\.nuget\\packages\\microsoft.identitymodel.tokens\\6.7.1\\microsoft.identitymodel.tokens.6.7.1.nupkg.sha512",
+    "C:\\Users\\lulujia\\.nuget\\packages\\mono.posix.netstandard\\1.0.0\\mono.posix.netstandard.1.0.0.nupkg.sha512",
+    "C:\\Users\\lulujia\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
+    "C:\\Users\\lulujia\\.nuget\\packages\\nlog\\4.7.2\\nlog.4.7.2.nupkg.sha512",
+    "C:\\Users\\lulujia\\.nuget\\packages\\oci.dotnetsdk.common\\51.2.0\\oci.dotnetsdk.common.51.2.0.nupkg.sha512",
+    "C:\\Users\\lulujia\\.nuget\\packages\\oci.dotnetsdk.queue\\51.2.0\\oci.dotnetsdk.queue.51.2.0.nupkg.sha512",
+    "C:\\Users\\lulujia\\.nuget\\packages\\polly\\7.2.0\\polly.7.2.0.nupkg.sha512",
+    "C:\\Users\\lulujia\\.nuget\\packages\\portable.bouncycastle\\1.9.0\\portable.bouncycastle.1.9.0.nupkg.sha512",
+    "C:\\Users\\lulujia\\.nuget\\packages\\system.componentmodel.annotations\\4.7.0\\system.componentmodel.annotations.4.7.0.nupkg.sha512",
+    "C:\\Users\\lulujia\\.nuget\\packages\\system.identitymodel.tokens.jwt\\6.7.1\\system.identitymodel.tokens.jwt.6.7.1.nupkg.sha512",
+    "C:\\Users\\lulujia\\.nuget\\packages\\system.security.cryptography.cng\\4.5.0\\system.security.cryptography.cng.4.5.0.nupkg.sha512"
+  ],
+  "logs": []
+}
