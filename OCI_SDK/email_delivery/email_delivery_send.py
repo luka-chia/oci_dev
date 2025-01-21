@@ -53,7 +53,7 @@ with open(PASSWORD_SMTP_FILE) as f:
 # create message container
 msg = EmailMessage()
 msg['Subject'] = SUBJECT
-msg['From'] = email.utils.formataddr((SENDERNAME, SENDER))
+#msg['From'] = email.utils.formataddr((SENDERNAME, SENDER))
 msg['To'] = RECIPIENT
 
 # make the message multi-part alternative, making the content the first part
