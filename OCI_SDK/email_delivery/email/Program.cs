@@ -29,21 +29,22 @@ namespace Program {
 
 
                 var host = "smtp.email.ap-singapore-1.oci.oraclecloud.com";
-                var port = 587;
-                //var port = 465;
+                //var port = 587;
+                var port = 465;
                 var username = "ocid1.user.oc1..aaaaaaaafkg344hepfwbzyrdzbi334q2ncyjforez3pw7kegmyqut5l7eorq@ocid1.tenancy.oc1..aaaaaaaaro7aox2fclu4urtpgsbacnrmjv46e7n4fw3sc2wbq24l7dzf3kba.xs.com";
                 var password = "+x7ZbDYxcSV}xd$#{PbM";
+                /*
                 client.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => {
                     // 打印证书问题
                     Console.WriteLine($"SSL Policy Errors: {sslPolicyErrors}");
-
                     // 信任所有证书（仅用于测试环境，不建议在生产环境使用）
                     return true;
-
-                    // 或仅接受特定证书条件：
-                    // return sslPolicyErrors == SslPolicyErrors.None;
                 };
-                client.Connect (host, port, SecureSocketOptions.StartTls);
+                //SecureSocketOptions.StartTls;
+                */
+                client.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+
+                client.Connect (host, port, true);
                 client.Authenticate (username, password);
 
                 client.Send (message);
