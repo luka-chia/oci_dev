@@ -14,6 +14,7 @@ def publish_notification(topic_id, msg_title, msg_body):
 def handler(ctx, data: io.BytesIO = None):
     try:
         body = json.loads(data.getvalue())
+        
         topic_id = "ocid1.onstopic.oc1.ap-singapore-1.aaaaaaaa5x7picrovnolbsuh5uejesq3gcbfss2fszblvpw6oji5aqlqjgyq"
         msg_title = "function notification"
         msg_body = json.dumps(body)#["msg_body"] #"the notification from function created by Luka"

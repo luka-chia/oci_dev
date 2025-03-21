@@ -11,7 +11,7 @@ import oci
 # https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm#SDK_and_CLI_Configuration_File
 # for more info
 config = oci.config.from_file()
-config.update({"region": "us-ashburn-1"})
+# config.update({"region": "us-ashburn-1"})
 
 
 # Initialize service client with default config file
@@ -71,6 +71,17 @@ def put_o():
 
     print(put_object_response.headers)
 
+def create_bucket():
+    create_bucket_response = object_storage_client.create_bucket(
+    namespace_name="sehubjapacprod",
+    create_bucket_details=oci.object_storage.models.CreateBucketDetails(
+        name="EXAMPLE-name-Value",
+        compartment_id="ocid1.compartment.oc1..aaaaaaaajyvcxbeipsa5s4jgzdi7o3oztfqpgxickubwkajwku5hfh4octoq"))
+
+    # Get the data from response
+    print(create_bucket_response.data)
+
 # put_o()
-list_objects()
+#list_objects()
 # test_token_authentication()
+create_bucket()
