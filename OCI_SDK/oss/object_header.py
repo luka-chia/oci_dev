@@ -11,21 +11,21 @@ import oci
 # https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm#SDK_and_CLI_Configuration_File
 # for more info
 config = oci.config.from_file()
-config.update({"region": "us-ashburn-1"})
+config.update({"region": "ap-singapore-1"})
 
 
 # Initialize service client with default config file
 object_storage_client = oci.object_storage.ObjectStorageClient(config)
 
 
-def get_object():
-
-    get_object_response = object_storage_client.get_object(
-        namespace_name="sehubjapacprod",
-        bucket_name="Luka-bucket-ashburn",
-        object_name="apache-tomcat.zip")
+def head_object():
+    
+    head_object_response = object_storage_client.head_object(
+    namespace_name="sehubjapacprod",
+    bucket_name="Luka-bucket",
+    object_name="Luka-windows-image")
 
     #  Get the data from response
-    print(get_object_response.data.headers)
+    print(head_object_response.headers)
 
-get_object()
+head_object()
