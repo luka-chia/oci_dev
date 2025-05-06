@@ -1,5 +1,0 @@
-D:\Dev\Program\oci_dev\OCI_SDK\email_delivery\email\obj\Debug\net5.0\email.csproj.AssemblyReference.cache
-D:\Dev\Program\oci_dev\OCI_SDK\email_delivery\email\obj\Debug\net5.0\email.GeneratedMSBuildEditorConfig.editorconfig
-D:\Dev\Program\oci_dev\OCI_SDK\email_delivery\email\obj\Debug\net5.0\email.AssemblyInfoInputs.cache
-D:\Dev\Program\oci_dev\OCI_SDK\email_delivery\email\obj\Debug\net5.0\email.AssemblyInfo.cs
-D:\Dev\Program\oci_dev\OCI_SDK\email_delivery\email\obj\Debug\net5.0\email.csproj.CoreCompileInputs.cache

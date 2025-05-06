@@ -1,2 +1,0 @@
-cd oci_dev/other_language/go_sdk                                                               
-go run oci_sdk.go

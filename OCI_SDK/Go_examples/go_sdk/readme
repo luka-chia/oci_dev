@@ -1,0 +1,2 @@
+cd oci_dev/OCI_SDK/Go_examples/go_sdk                                                             
+go run oci_sdk.go
