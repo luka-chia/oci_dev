@@ -46,6 +46,7 @@ public class OCIS3Demo_GenerateGetPresignedUrl {
                 .endpointOverride(s3Client.serviceClientConfiguration().endpointOverride().orElse(null))
                 .credentialsProvider(s3Client.serviceClientConfiguration().credentialsProvider())
                 .region(s3Client.serviceClientConfiguration().region())
+                .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
                 .build();
 
         PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(

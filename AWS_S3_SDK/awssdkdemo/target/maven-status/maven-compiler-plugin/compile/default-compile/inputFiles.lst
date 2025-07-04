@@ -1,1 +1,4 @@
-/Users/luka/dev_env/program/oci_dev/AWS_S3_SDK/awssdkdemo/src/main/java/com/example/awssdktest/OCIS3Demo.java
+/Users/luka/dev_env/program/oci_dev/AWS_S3_SDK/awssdkdemo/src/main/java/com/example/awssdktest/OCIS3Demo_GeneratePutPresignedUrl.java
+/Users/luka/dev_env/program/oci_dev/AWS_S3_SDK/awssdkdemo/src/main/java/com/example/awssdktest/OCIS3Demo_GenerateGetPresignedUrl.java
+/Users/luka/dev_env/program/oci_dev/AWS_S3_SDK/awssdkdemo/src/main/java/com/example/awssdktest/OCIS3Demo_BasicOperator.java
+/Users/luka/dev_env/program/oci_dev/AWS_S3_SDK/awssdkdemo/src/main/java/com/example/awssdktest/OCIS3Demo_GenerateUploadPartPresignedUrl.java

@@ -52,6 +52,7 @@ public class OCIS3Demo_GeneratePutPresignedUrl{
                 .endpointOverride(s3Client.serviceClientConfiguration().endpointOverride().orElse(null))
                 .credentialsProvider(s3Client.serviceClientConfiguration().credentialsProvider())
                 .region(s3Client.serviceClientConfiguration().region())
+                .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
                 .build();
 
         PresignedPutObjectRequest presignedRequest = presigner.presignPutObject(
