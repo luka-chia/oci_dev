@@ -34,10 +34,10 @@ public class OCIS3Demo_BasicOperator {
                 .build();
         
         // 1. PUT对象
-        putObject(s3Client, bucketName);
+        // putObject(s3Client, bucketName);
 
         // 2. Get对象
-        getObject(s3Client, bucketName);
+        // getObject(s3Client, bucketName);
 
         // 3. 删除对象
         //deleteObject(s3Client, bucketName);
@@ -46,7 +46,7 @@ public class OCIS3Demo_BasicOperator {
         listObjects(s3Client, bucketName);
 
         // 5. 获取对象元数据
-        headObject(s3Client, bucketName);
+        // headObject(s3Client, bucketName);
 
         s3Client.close();
     }
