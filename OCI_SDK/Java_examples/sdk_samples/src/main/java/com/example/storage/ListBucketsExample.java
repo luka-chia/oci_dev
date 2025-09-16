@@ -36,7 +36,7 @@ public class ListBucketsExample {
 
 	    ListBucketsRequest listBucketsRequest = ListBucketsRequest.builder()
         .namespaceName("sehubjapacprod")
-		.compartmentId("ocid1.compartment.oc1..aaaaaaaajyvcxbeipsa5s4jgzdi7o3oztfqpgxickubwkajwku5hfh4octoq")
+		.compartmentId("ocid1.cxs4jgzdi7o3oztfqpgxickubwkajwku5hfh4octoq")
 		.build();
 
         /* Send request to the Client */
