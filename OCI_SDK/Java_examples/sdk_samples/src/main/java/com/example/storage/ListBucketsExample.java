@@ -30,11 +30,12 @@ public class ListBucketsExample {
 
         /* Create a service client */
         ObjectStorageClient client = ObjectStorageClient.builder().build(provider);
+        
 
         /* Create a request and dependent object(s). */
 
-	ListBucketsRequest listBucketsRequest = ListBucketsRequest.builder()
-		.namespaceName("sehubjapacprod")
+	    ListBucketsRequest listBucketsRequest = ListBucketsRequest.builder()
+        .namespaceName("sehubjapacprod")
 		.compartmentId("ocid1.compartment.oc1..aaaaaaaajyvcxbeipsa5s4jgzdi7o3oztfqpgxickubwkajwku5hfh4octoq")
 		.build();
 
