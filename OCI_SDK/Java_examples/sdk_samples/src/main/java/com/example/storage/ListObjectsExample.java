@@ -41,7 +41,7 @@ public class ListObjectsExample {
 
         ListObjectsRequest listObjectsRequest = ListObjectsRequest.builder()
             .namespaceName("sehubjapacprod")
-            .bucketName("Luka-bucket")
+            .bucketName("Luka-bucket-ashburn")
             .build();
 
             /* Send request to the Client */

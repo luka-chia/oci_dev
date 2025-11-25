@@ -21,7 +21,7 @@ object_storage_client = oci.object_storage.ObjectStorageClient(config)
 def list_objects():
     list_objects_response = object_storage_client.list_objects(
     namespace_name="sehubjapacprod",
-    bucket_name="Luka-bucket")
+    bucket_name="Luka-bucket-ashburn")
 
     # Get the data from response
     print(list_objects_response.data)
