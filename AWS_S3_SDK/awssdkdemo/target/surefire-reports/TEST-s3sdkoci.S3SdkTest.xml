@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="s3sdkoci.S3SdkTest" time="147.223" tests="11" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="s3sdkoci.S3SdkTest" time="4.103" tests="11" errors="8" skipped="0" failures="0">
   <properties>
     <property name="gopherProxySet" value="false"/>
     <property name="awt.toolkit" value="sun.lwawt.macosx.LWCToolkit"/>
@@ -16,7 +16,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="CN"/>
     <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk-11.jdk/Contents/Home/lib"/>
-    <property name="sun.java.command" value="/Users/luka/dev_env/program/oci_dev/AWS_S3_SDK/awssdkdemo/target/surefire/surefirebooter16528498477181747240.jar /Users/luka/dev_env/program/oci_dev/AWS_S3_SDK/awssdkdemo/target/surefire 2025-07-04T14-50-20_290-jvmRun1 surefire14165349693329199198tmp surefire_011273503937819837532tmp"/>
+    <property name="sun.java.command" value="/Users/luka/dev_env/program/oci_dev/AWS_S3_SDK/awssdkdemo/target/surefire/surefirebooter15313432804909389123.jar /Users/luka/dev_env/program/oci_dev/AWS_S3_SDK/awssdkdemo/target/surefire 2026-02-03T09-18-39_365-jvmRun1 surefire10292286557581839435tmp surefire_02465003206893413045tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/Users/luka/dev_env/program/oci_dev/AWS_S3_SDK/awssdkdemo/target/test-classes:/Users/luka/dev_env/program/oci_dev/AWS_S3_SDK/awssdkdemo/target/classes:/Users/luka/dev_env/environment/maven-3.8.6-repo/org/junit/jupiter/junit-jupiter-api/5.8.2/junit-jupiter-api-5.8.2.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/org/junit/platform/junit-platform-commons/1.8.2/junit-platform-commons-1.8.2.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/org/junit/jupiter/junit-jupiter-engine/5.8.2/junit-jupiter-engine-5.8.2.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/org/junit/platform/junit-platform-engine/1.8.2/junit-platform-engine-1.8.2.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/s3/2.21.46/s3-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/aws-xml-protocol/2.21.46/aws-xml-protocol-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/aws-query-protocol/2.21.46/aws-query-protocol-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/protocol-core/2.21.46/protocol-core-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/arns/2.21.46/arns-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/profiles/2.21.46/profiles-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/crt-core/2.21.46/crt-core-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/http-auth/2.21.46/http-auth-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/identity-spi/2.21.46/identity-spi-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/http-auth-spi/2.21.46/http-auth-spi-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/org/reactivestreams/reactive-streams/1.0.4/reactive-streams-1.0.4.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/http-auth-aws/2.21.46/http-auth-aws-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/checksums/2.21.46/checksums-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/checksums-spi/2.21.46/checksums-spi-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/sdk-core/2.21.46/sdk-core-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/org/slf4j/slf4j-api/1.7.30/slf4j-api-1.7.30.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/auth/2.21.46/auth-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/eventstream/eventstream/1.0.1/eventstream-1.0.1.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/http-client-spi/2.21.46/http-client-spi-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/regions/2.21.46/regions-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/annotations/2.21.46/annotations-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/utils/2.21.46/utils-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/aws-core/2.21.46/aws-core-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/metrics-spi/2.21.46/metrics-spi-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/json-utils/2.21.46/json-utils-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/third-party-jackson-core/2.21.46/third-party-jackson-core-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/endpoints-spi/2.21.46/endpoints-spi-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/apache-client/2.21.46/apache-client-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/org/apache/httpcomponents/httpclient/4.5.13/httpclient-4.5.13.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/commons-logging/commons-logging/1.2/commons-logging-1.2.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/org/apache/httpcomponents/httpcore/4.4.13/httpcore-4.4.13.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/commons-codec/commons-codec/1.15/commons-codec-1.15.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/netty-nio-client/2.21.46/netty-nio-client-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/io/netty/netty-codec-http/4.1.100.Final/netty-codec-http-4.1.100.Final.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/io/netty/netty-codec-http2/4.1.100.Final/netty-codec-http2-4.1.100.Final.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/io/netty/netty-codec/4.1.100.Final/netty-codec-4.1.100.Final.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/io/netty/netty-transport/4.1.100.Final/netty-transport-4.1.100.Final.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/io/netty/netty-common/4.1.100.Final/netty-common-4.1.100.Final.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/io/netty/netty-buffer/4.1.100.Final/netty-buffer-4.1.100.Final.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/io/netty/netty-handler/4.1.100.Final/netty-handler-4.1.100.Final.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/io/netty/netty-transport-native-unix-common/4.1.100.Final/netty-transport-native-unix-common-4.1.100.Final.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/io/netty/netty-transport-classes-epoll/4.1.100.Final/netty-transport-classes-epoll-4.1.100.Final.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/io/netty/netty-resolver/4.1.100.Final/netty-resolver-4.1.100.Final.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/dynamodb/2.21.46/dynamodb-2.21.46.jar:/Users/luka/dev_env/environment/maven-3.8.6-repo/software/amazon/awssdk/aws-json-protocol/2.21.46/aws-json-protocol-2.21.46.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -32,12 +32,12 @@
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.awt.graphicsenv" value="sun.awt.CGraphicsEnvironment"/>
-    <property name="surefire.real.class.path" value="/Users/luka/dev_env/program/oci_dev/AWS_S3_SDK/awssdkdemo/target/surefire/surefirebooter16528498477181747240.jar"/>
+    <property name="surefire.real.class.path" value="/Users/luka/dev_env/program/oci_dev/AWS_S3_SDK/awssdkdemo/target/surefire/surefirebooter15313432804909389123.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="11.0.26+7-LTS-187"/>
     <property name="user.name" value="luka"/>
     <property name="path.separator" value=":"/>
-    <property name="os.version" value="15.5"/>
+    <property name="os.version" value="26.2"/>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="file.encoding" value="UTF-8"/>
     <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
@@ -59,15 +59,58 @@
     <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
     <property name="java.class.version" value="55.0"/>
   </properties>
-  <testcase name="testCreateMultipartUpload" classname="s3sdkoci.S3SdkTest" time="84.592"/>
-  <testcase name="testListObjects" classname="s3sdkoci.S3SdkTest" time="1.121"/>
-  <testcase name="testGenerateUploadPartPresignedUrl" classname="s3sdkoci.S3SdkTest" time="42.478"/>
-  <testcase name="testBatchDelete" classname="s3sdkoci.S3SdkTest" time="1.198"/>
-  <testcase name="testGenerateGetPresignedUrl" classname="s3sdkoci.S3SdkTest" time="0.014"/>
-  <testcase name="testAbortMultipartUpload" classname="s3sdkoci.S3SdkTest" time="6.949"/>
-  <testcase name="TestDeleteObject" classname="s3sdkoci.S3SdkTest" time="0.998"/>
-  <testcase name="testPutObject" classname="s3sdkoci.S3SdkTest" time="4.101"/>
-  <testcase name="testGeneratePutPresignedUrl" classname="s3sdkoci.S3SdkTest" time="3.803"/>
-  <testcase name="testHeadObject" classname="s3sdkoci.S3SdkTest" time="0.985"/>
-  <testcase name="testGetObject" classname="s3sdkoci.S3SdkTest" time="0.974"/>
+  <testcase name="testCreateMultipartUpload" classname="s3sdkoci.S3SdkTest" time="1.1">
+    <error message="The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:SmY6NUZ4XkT-KO9FthClGIZBP2U-VQ5MwVqWqREiVmCe33xzJrNmG5ouX_9lODDy)" type="software.amazon.awssdk.services.s3.model.S3Exception">software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:SmY6NUZ4XkT-KO9FthClGIZBP2U-VQ5MwVqWqREiVmCe33xzJrNmG5ouX_9lODDy)
+	at s3sdkoci.S3SdkTest.testCreateMultipartUpload(S3SdkTest.java:164)
+</error>
+    <system-err><![CDATA[SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+]]></system-err>
+  </testcase>
+  <testcase name="testListObjects" classname="s3sdkoci.S3SdkTest" time="0.737">
+    <error message="The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:m64MN_mrc1Xh0iqA_dyIU1iDjb1nZ_NCzs7074Sxgumfs6FyZZpxx2kiVR2A2U_G)" type="software.amazon.awssdk.services.s3.model.S3Exception">software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:m64MN_mrc1Xh0iqA_dyIU1iDjb1nZ_NCzs7074Sxgumfs6FyZZpxx2kiVR2A2U_G)
+	at s3sdkoci.S3SdkTest.testListObjects(S3SdkTest.java:323)
+</error>
+  </testcase>
+  <testcase name="testGenerateUploadPartPresignedUrl" classname="s3sdkoci.S3SdkTest" time="0.362"/>
+  <testcase name="testBatchDelete" classname="s3sdkoci.S3SdkTest" time="0.384">
+    <error message="software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:XhSRNArcCJkhthTPW18nFVAZwrRGqGyNRNcc3Zc6cjLFVOZ96rnZ3FJqjj_WbybL)" type="java.util.concurrent.ExecutionException">java.util.concurrent.ExecutionException: software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:XhSRNArcCJkhthTPW18nFVAZwrRGqGyNRNcc3Zc6cjLFVOZ96rnZ3FJqjj_WbybL)
+	at s3sdkoci.S3SdkTest.testBatchDelete(S3SdkTest.java:139)
+Caused by: software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:XhSRNArcCJkhthTPW18nFVAZwrRGqGyNRNcc3Zc6cjLFVOZ96rnZ3FJqjj_WbybL)
+	at s3sdkoci.S3SdkTest.lambda$testBatchDelete$0(S3SdkTest.java:128)
+</error>
+    <system-out><![CDATA[Error deleting test.txt
+Error deleting 1.mp4
+]]></system-out>
+  </testcase>
+  <testcase name="testGenerateGetPresignedUrl" classname="s3sdkoci.S3SdkTest" time="0.022"/>
+  <testcase name="testAbortMultipartUpload" classname="s3sdkoci.S3SdkTest" time="0.369">
+    <error message="The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:VwYxNvEvh45xryzzsF_BHPepWMCWM95nZrmZt1uKtnvHGHRgAGzuX7qwr48XFtEk)" type="software.amazon.awssdk.services.s3.model.S3Exception">software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:VwYxNvEvh45xryzzsF_BHPepWMCWM95nZrmZt1uKtnvHGHRgAGzuX7qwr48XFtEk)
+	at s3sdkoci.S3SdkTest.testAbortMultipartUpload(S3SdkTest.java:240)
+</error>
+  </testcase>
+  <testcase name="TestDeleteObject" classname="s3sdkoci.S3SdkTest" time="0.385">
+    <error message="The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:b3m1Kpo8P0ZlOV64qKSPjhe95N37Z3LQ0nmPZ-HJMk8sF1qqY_w1EK4PUU5i3Prz)" type="software.amazon.awssdk.services.s3.model.S3Exception">software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:b3m1Kpo8P0ZlOV64qKSPjhe95N37Z3LQ0nmPZ-HJMk8sF1qqY_w1EK4PUU5i3Prz)
+	at s3sdkoci.S3SdkTest.TestDeleteObject(S3SdkTest.java:332)
+</error>
+  </testcase>
+  <testcase name="testPutObject" classname="s3sdkoci.S3SdkTest" time="0.01">
+    <error message="java.nio.file.NoSuchFileException: /Users/luka/Downloads/Oracle_Document.pdf" type="java.io.UncheckedIOException">java.io.UncheckedIOException: java.nio.file.NoSuchFileException: /Users/luka/Downloads/Oracle_Document.pdf
+	at s3sdkoci.S3SdkTest.testPutObject(S3SdkTest.java:315)
+Caused by: java.nio.file.NoSuchFileException: /Users/luka/Downloads/Oracle_Document.pdf
+	at s3sdkoci.S3SdkTest.testPutObject(S3SdkTest.java:315)
+</error>
+  </testcase>
+  <testcase name="testGeneratePutPresignedUrl" classname="s3sdkoci.S3SdkTest" time="0.01"/>
+  <testcase name="testHeadObject" classname="s3sdkoci.S3SdkTest" time="0.366">
+    <error message="null (Service: S3, Status Code: 403, Request ID: sin-1:HQLEUcXGGfFJX3j3q8JOuNRJmM45ZqYyI8IFfMPHCyA27vivsBrnuWoCo95-TYKk)" type="software.amazon.awssdk.services.s3.model.S3Exception">software.amazon.awssdk.services.s3.model.S3Exception: null (Service: S3, Status Code: 403, Request ID: sin-1:HQLEUcXGGfFJX3j3q8JOuNRJmM45ZqYyI8IFfMPHCyA27vivsBrnuWoCo95-TYKk)
+	at s3sdkoci.S3SdkTest.testHeadObject(S3SdkTest.java:355)
+</error>
+  </testcase>
+  <testcase name="testGetObject" classname="s3sdkoci.S3SdkTest" time="0.353">
+    <error message="The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:IGSqogeuDGeyfLOyehS2QK6ianDb5URJwuI-Zww7ZjyjXSKFh45a9rwPbHDqQxIo)" type="software.amazon.awssdk.services.s3.model.S3Exception">software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:IGSqogeuDGeyfLOyehS2QK6ianDb5URJwuI-Zww7ZjyjXSKFh45a9rwPbHDqQxIo)
+	at s3sdkoci.S3SdkTest.testGetObject(S3SdkTest.java:341)
+</error>
+  </testcase>
 </testsuite>

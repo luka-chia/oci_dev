@@ -16,17 +16,19 @@ public class OCIS3Demo_BasicOperator {
 
     public static void main(String[] args) {
         // OCI S3 兼容配置
-        String ociEndpoint = "https://sehubjapacprod.compat.objectstorage.us-ashburn-1.oraclecloud.com";
-        String accessKey = "286f20dee8de157e55b63cd56b828b401753b28b";  // OCI 生成的 S3 兼容访问密钥
-        String secretKey = "H9P1j3I/oOtKpixXk7wuwdf5r8LCH0JjZ6UJlpBToss=";  // OCI 生成的 S3 兼容密钥
-        String bucketName = "Luka-bucket-ashburn";
+
+        String ociEndpoint = "https://vhcompat.objectstorage.us-ashburn-1.oci.customer-oci.com";
+        //String ociEndpoint = "https://sehubjapacprod.compat.objectstorage.us-ashburn-1.oraclecloud.com";
+        String accessKey = "7b1b4e320514a1da7029649cd499370c66d6e600";  // OCI 生成的 S3 兼容访问密钥
+        String secretKey = "78MYKiklxlmx/yVd2iOnoiTdnzKdkD/1P3joiZeaPvo=";  // OCI 生成的 S3 兼容密钥
+        String bucketName = "luka-bucket-ashburn";
 
         // 0. 创建 S3Client（适配 OCI）
         S3Client s3Client = S3Client.builder()
                 .endpointOverride(URI.create(ociEndpoint))  // OCI S3 兼容端点
                 .serviceConfiguration(
                     S3Configuration.builder()
-                    .pathStyleAccessEnabled(true) // 关键：强制使用 Path Style
+                    //.pathStyleAccessEnabled(true) // 关键：强制使用 Path Style
                     .build())
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(accessKey, secretKey)))
@@ -47,6 +49,9 @@ public class OCIS3Demo_BasicOperator {
 
         // 5. 获取对象元数据
         // headObject(s3Client, bucketName);
+
+        // 6. 获取桶
+        // listBuckets(s3Client, bucketName);
 
         s3Client.close();
     }
@@ -73,6 +78,12 @@ public class OCIS3Demo_BasicOperator {
                 .build());
         System.out.println("Bucket 中的对象列表:");
         response.contents().forEach(obj -> System.out.println(" - " + obj.key()));
+    }
+
+    private static void listBuckets(S3Client s3Client, String bucket) {
+        ListBucketsResponse response = s3Client.listBuckets();
+        response.buckets().forEach(b ->
+            System.out.println("Bucket Name: " + b.name()));
     }
 
     // Get对象

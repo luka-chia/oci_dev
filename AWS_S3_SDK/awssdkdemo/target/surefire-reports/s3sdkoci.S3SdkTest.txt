@@ -1,4 +1,40 @@
 -------------------------------------------------------------------------------
 Test set: s3sdkoci.S3SdkTest
 -------------------------------------------------------------------------------
-Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 147.223 s - in s3sdkoci.S3SdkTest
+Tests run: 11, Failures: 0, Errors: 8, Skipped: 0, Time elapsed: 4.103 s <<< FAILURE! - in s3sdkoci.S3SdkTest
+testCreateMultipartUpload  Time elapsed: 1.1 s  <<< ERROR!
+software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:SmY6NUZ4XkT-KO9FthClGIZBP2U-VQ5MwVqWqREiVmCe33xzJrNmG5ouX_9lODDy)
+	at s3sdkoci.S3SdkTest.testCreateMultipartUpload(S3SdkTest.java:164)
+
+testListObjects  Time elapsed: 0.737 s  <<< ERROR!
+software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:m64MN_mrc1Xh0iqA_dyIU1iDjb1nZ_NCzs7074Sxgumfs6FyZZpxx2kiVR2A2U_G)
+	at s3sdkoci.S3SdkTest.testListObjects(S3SdkTest.java:323)
+
+testBatchDelete  Time elapsed: 0.384 s  <<< ERROR!
+java.util.concurrent.ExecutionException: software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:XhSRNArcCJkhthTPW18nFVAZwrRGqGyNRNcc3Zc6cjLFVOZ96rnZ3FJqjj_WbybL)
+	at s3sdkoci.S3SdkTest.testBatchDelete(S3SdkTest.java:139)
+Caused by: software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:XhSRNArcCJkhthTPW18nFVAZwrRGqGyNRNcc3Zc6cjLFVOZ96rnZ3FJqjj_WbybL)
+	at s3sdkoci.S3SdkTest.lambda$testBatchDelete$0(S3SdkTest.java:128)
+
+testAbortMultipartUpload  Time elapsed: 0.369 s  <<< ERROR!
+software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:VwYxNvEvh45xryzzsF_BHPepWMCWM95nZrmZt1uKtnvHGHRgAGzuX7qwr48XFtEk)
+	at s3sdkoci.S3SdkTest.testAbortMultipartUpload(S3SdkTest.java:240)
+
+TestDeleteObject  Time elapsed: 0.385 s  <<< ERROR!
+software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:b3m1Kpo8P0ZlOV64qKSPjhe95N37Z3LQ0nmPZ-HJMk8sF1qqY_w1EK4PUU5i3Prz)
+	at s3sdkoci.S3SdkTest.TestDeleteObject(S3SdkTest.java:332)
+
+testPutObject  Time elapsed: 0.01 s  <<< ERROR!
+java.io.UncheckedIOException: java.nio.file.NoSuchFileException: /Users/luka/Downloads/Oracle_Document.pdf
+	at s3sdkoci.S3SdkTest.testPutObject(S3SdkTest.java:315)
+Caused by: java.nio.file.NoSuchFileException: /Users/luka/Downloads/Oracle_Document.pdf
+	at s3sdkoci.S3SdkTest.testPutObject(S3SdkTest.java:315)
+
+testHeadObject  Time elapsed: 0.366 s  <<< ERROR!
+software.amazon.awssdk.services.s3.model.S3Exception: null (Service: S3, Status Code: 403, Request ID: sin-1:HQLEUcXGGfFJX3j3q8JOuNRJmM45ZqYyI8IFfMPHCyA27vivsBrnuWoCo95-TYKk)
+	at s3sdkoci.S3SdkTest.testHeadObject(S3SdkTest.java:355)
+
+testGetObject  Time elapsed: 0.353 s  <<< ERROR!
+software.amazon.awssdk.services.s3.model.S3Exception: The secret key required to complete authentication could not be found. The region must be specified if this is not the home region for the tenancy. (Service: S3, Status Code: 403, Request ID: sin-1:IGSqogeuDGeyfLOyehS2QK6ianDb5URJwuI-Zww7ZjyjXSKFh45a9rwPbHDqQxIo)
+	at s3sdkoci.S3SdkTest.testGetObject(S3SdkTest.java:341)
+

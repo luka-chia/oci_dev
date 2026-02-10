@@ -1,4 +1,5 @@
 com/example/awssdktest/OCIS3Demo_GeneratePutPresignedUrl.class
 com/example/awssdktest/OCIS3Demo_GenerateUploadPartPresignedUrl.class
+com/example/awssdktest/OCIS3Demo_createBucket.class
 com/example/awssdktest/OCIS3Demo_BasicOperator.class
 com/example/awssdktest/OCIS3Demo_GenerateGetPresignedUrl.class
