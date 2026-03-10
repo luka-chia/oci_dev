@@ -32,7 +32,7 @@
 # This will create a session and start forwarding local port 2222 to 10.0.1.90:22 via the bastion.
 
 # Default values from bastion file
-DEFAULT_BASTION_ID="ocid1.bastion.oc1.ap-seoul-1.amaaaaaaak7gbriak2xz3eb2jphlckydf6tkdvmhghgp2qsnd5yvdnc2cuwa"
+DEFAULT_BASTION_ID="ocid1.bastion.oc1.ap-seoul-1.amaaaaaaak7gbriak2xz3eb2jphlckydf6tkdvmhghgp2qsnd5yvdnc2cu"
 DEFAULT_TARGET_PORT=22
 DEFAULT_TARGET_PRIVATE_IP="10.0.1.90"
 DEFAULT_LOCAL_PORT=2222

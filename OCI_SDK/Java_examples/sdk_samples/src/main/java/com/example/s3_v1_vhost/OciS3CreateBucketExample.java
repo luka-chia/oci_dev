@@ -1,4 +1,4 @@
-package com.example.s3;
+package com.example.s3_v1_vhost;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -7,39 +7,24 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.CreateBucketRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.example.OCI_Utils;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-
-public class OciS3AccessExample {
-
-    // AES解密方法
-    private static String decrypt(String key, String encrypted) throws Exception {
-        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-        cipher.init(Cipher.DECRYPT_MODE, secretKey);
-        byte[] decodedBytes = Base64.getDecoder().decode(encrypted);
-        byte[] decryptedBytes = cipher.doFinal(decodedBytes);
-        return new String(decryptedBytes, StandardCharsets.UTF_8);
-    }
-
+public class OciS3CreateBucketExample {
     public static void main(String[] args) {
         // 配置参数
-        String accessKey = "30bf43cef8ff248f21b7d4f9128385b285e012e3";
-        String secretKey = "your-secret-key";
+        String accessKey = OCI_Utils.getProperty("oci.accessKey");
+        String secretKey = OCI_Utils.getProperty("oci.secretKey");
         String namespace = "sehubjapacprod";
-        String region = "eu-frankfurt-1";
-        String bucketName = "Luka-bucket";
+        String region = "us-ashburn-1";
+        String bucketName = "luka-bucket-ashburn-3";
 
         try {
             
             // 构建endpoint
-            String endpoint = String.format("https://%s.compat.objectstorage.%s.oraclecloud.com", 
-                                          namespace, region);
+            String endpoint = String.format("https://vhcompat.objectstorage.%s.oci.customer-oci.com", region);
             
             // 配置客户端
             ClientConfiguration config = new ClientConfiguration()
@@ -60,7 +45,7 @@ public class OciS3AccessExample {
                 .withCredentials(credentials)
                 .withClientConfiguration(config)
                 .withEndpointConfiguration(endpointConfig)
-                .withPathStyleAccessEnabled(true)  // OCI需要路径风格访问
+                //.withPathStyleAccessEnabled(true)  // OCI需要路径风格访问
                 .disableChunkedEncoding()  // 某些OCI版本需要
                 .build();
 
@@ -69,19 +54,9 @@ public class OciS3AccessExample {
             System.out.println("Endpoint: " + endpoint);
             System.out.println("Bucket: " + bucketName);
             
-            if (!s3Client.doesBucketExistV2(bucketName)) {
-                System.err.println("错误: 存储桶不存在或无权访问");
-                return;
-            }
-            
-            // 列出对象
-            ObjectListing objectListing = s3Client.listObjects(bucketName);
-            System.out.println("\n存储桶内容列表:");
-            for (S3ObjectSummary summary : objectListing.getObjectSummaries()) {
-                System.out.println(" - " + summary.getKey() + 
-                                 " (大小: " + summary.getSize() + " bytes, " +
-                                 "最后修改: " + summary.getLastModified() + ")");
-            }
+            CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
+            s3Client.createBucket(createBucketRequest);
+            System.out.println("Bucket 创建成功: " + bucketName);
             
         } catch (Exception e) {
             System.err.println("\n发生错误:");

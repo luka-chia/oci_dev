@@ -5,16 +5,9 @@ import com.oracle.bmc.ConfigFileReader;
 import com.oracle.bmc.auth.AuthenticationDetailsProvider;
 import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider;
 import com.oracle.bmc.objectstorage.ObjectStorageClient;
-import com.oracle.bmc.objectstorage.model.*;
 import com.oracle.bmc.objectstorage.requests.*;
 import com.oracle.bmc.objectstorage.responses.*;
-import java.math.BigDecimal;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Date;
-import java.util.UUID;
-import java.util.Arrays;
 
 
 public class ListBucketsExample {

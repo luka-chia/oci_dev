@@ -43,7 +43,14 @@
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-s3</artifactId>
-      <version>1.11.1000</version> <!-- 支持 Java 8，兼容性良好 -->
+      <version>1.11.1000</version> 
+    </dependency>
+
+    <!-- AWS SDK for Java v2.x -->
+    <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>s3</artifactId>
+        <version>2.21.46</version>
     </dependency>
   </dependencies>
 <build>
