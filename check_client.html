@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>SGD 客户端检测完善版</title>
+    <style>
+        .status-success { color: green; font-weight: bold; }
+        .status-fail { color: red; font-weight: bold; }
+        button { padding: 8px 15px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h3>检测 Oracle Secure Global Desktop Client</h3>
+    <button onclick="checkAndLaunch()">Check Client Status</button>
+    <p id="result"></p>
+
+    <script>
+        function checkAndLaunch() {
+            var result = document.getElementById("result");
+            var hasFocus = true;
+            var protocolCalled = false;
+
+            result.style.color = "blue";
+            result.innerText = "正在尝试唤起客户端，请留意浏览器上方弹窗...";
+
+            // 监听窗口失焦：如果弹出了浏览器对话框，窗口会失焦
+            window.onblur = function() {
+                hasFocus = false;
+            };
+
+            // 尝试启动 (注意：协议名必须和注册表左侧文件夹名一致，图里是 sgd)
+            window.location.href = "sgd://launch";
+            protocolCalled = true;
+
+            // 延迟检测逻辑
+            setTimeout(function() {
+                // 如果窗口失去了焦点，说明浏览器已经识别协议并弹出确认框了
+                if (!hasFocus) {
+                    result.className = "status-success";
+                    result.innerText = "检测到客户端：已成功触发启动请求。";
+                } else {
+                    // 如果一直有焦点，说明浏览器根本没打算弹窗（即协议未注册）
+                    result.className = "status-fail";
+                    result.innerText = "未检测到客户端，请检查注册表 sgd 协议是否正确。";
+                }
+                // 清理监听，防止干扰后续操作
+                window.onblur = null;
+            }, 2000); // 给浏览器 2 秒的时间来处理弹窗
+        }
+    </script>
+</body>
+</html>
