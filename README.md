@@ -22,7 +22,32 @@ https://docs.oracle.com/en-us/iaas/Content/API/Concepts/devcloudshellintro.htm
 
 # Usecase List
 
-Here are the usecases covered by the scripts, xxx
+Here are the usecases covered by the scripts, we list these as scripts examples, and hope to give some rough idea on how to adjust the code to fit your real usecases.
+please search in this page by ctl+f, will not be listed below in the future.
+
+- [Create VMs and Attach New Block Volumes](./OCI-Auto-Scripts-main/oci%20create%20vms%20attached%20bvs)
+- [Openshift Automatic Deployment on OCI VMs](./OCI-Auto-Scripts-main/openshift/README.md)
+- [Add/update tags to OCI Resources ](./OCI-Auto-Scripts-main/oci%20batch%20add%20tags)
+- [Format Block Volume Disks](./OCI-Auto-Scripts-main/ssh%20remote%20run%20cmd%20and%20format%20blockvolume)
+- [OCI SDK .Net Sample Code](./OCI-Auto-Scripts-main/oci%20.net%20sdk%20demo)
+- [Query Resources across OCI regions](./OCI-Auto-Scripts-main/Query%20Resources%20Across%20Regions)
+- [Test uploading files to oci with s3 compatible API](./OCI-Auto-Scripts-main/curl%20upload%20file%20to%20oci%20s3%20compatible%20bucket)
+- [Python auth without oci sdk](./OCI-Auto-Scripts-main/python%20auth%20without%20oci%20sdk)
+- [Use oci api in Openresty](./OCI-Auto-Scripts-main/openresty%20oci%20api)
+- [oci small clean gui ](./OCI-Auto-Scripts-main/oci%20small%20clean%20gui)
+- [prometheus oci exporter ](./OCI-Auto-Scripts-main/oci_exporter)
+- [Many Tools OCI Image](./OCI-Auto-Scripts-main/Many%20Useful%20Tools%20Custom%20Image--%20Gold%20Hundun)
+- [auto install management agent in windows](./OCI-Auto-Scripts-main/auto%20install%20management%20agent%20in%20windows)
+- [java connect to adw ](./OCI-Auto-Scripts-main/java_connect_adw)
+- [OCI Functions .NET Samples](./OCI_Functions/dotnet)
+- [OCI Functions Python Samples](./OCI_Functions/python)
+- [OCI Functions Template](./OCI_Functions/function_template)
+- [OCI SDK Go Examples](./OCI_SDK/Go_examples)
+- [OCI SDK Java Examples](./OCI_SDK/Java_examples)
+- [OCI SDK Python Examples](./OCI_SDK/Python_examples)
+- [AWS S3 SDK Demo](./AWS_S3_SDK/awssdkdemo)
+- [Vue Example with AWS S3](./AWS_S3_SDK/vue-example)
+- [Check Client HTML Tool](./check_client.html)
 
 
 
