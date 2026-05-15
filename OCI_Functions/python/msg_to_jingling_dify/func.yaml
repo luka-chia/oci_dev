@@ -1,0 +1,13 @@
+schema_version: 20180708
+name: msg_to_jingling_dify
+version: 0.0.28
+runtime: python
+build_image: fnproject/python:3.9-dev
+run_image: fnproject/python:3.9
+entrypoint: /python/bin/fdk /function/func.py handler
+memory: 256
+config:
+    DIFI_APIKEY: "DIFI_APIKEY"
+    DIFI_APIURL: "DIFI_APIURL"
+    USER_IDENTIFIER: "USER_IDENTIFIER"
+    token: "token"
