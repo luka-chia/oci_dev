@@ -753,15 +753,15 @@ ZFSSA 上的 FSLogix 目录默认按用户和 SID 生成，不按 VM hostname �
 2. 在用户 profile 中创建或修改测试文件，例如 `C:\Users\luka\luka.txt`。
 3. 从 Windows 11 Start menu 选择当前用户，然后点击 `Sign out`，不要只关闭 RDP / Secure Desktop 窗口。
 
-![Windows Start menu sign out](Images_attachments/windows-start-menu-sign-out.svg)
+![Windows Start menu sign out](Images_attachments/windows-start-menu-sign-out.png)
 
 4. 等待 Windows 显示并完成 `Signing out`。这一步会触发 FSLogix 保存并卸载用户 profile container。
 
-![Windows signing out screen](Images_attachments/windows-signing-out-screen.svg)
+![Windows signing out screen](Images_attachments/windows-signing-out-screen.png)
 
 5. 重新登录同一台 VM，或登录下一台使用同一 Golden Image 创建的 VM，确认 `C:\Users\<username>` 下的测试文件仍然存在。
 
-![Windows user profile folder with test file](Images_attachments/windows-user-profile-folder-luka.svg)
+![Windows user profile folder with test file](Images_attachments/windows-user-profile-folder-luka.png)
 
 ### 5.3 Verify Persistence
 

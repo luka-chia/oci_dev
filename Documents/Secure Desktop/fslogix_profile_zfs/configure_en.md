@@ -753,15 +753,15 @@ Use the following sequence during testing:
 2. Create or modify a test file in the user profile, for example `C:\Users\luka\luka.txt`.
 3. From the Windows 11 Start menu, select the current user and click `Sign out`. Do not only close the RDP / Secure Desktop window.
 
-![Windows Start menu sign out](Images_attachments/windows-start-menu-sign-out.svg)
+![Windows Start menu sign out](Images_attachments/windows-start-menu-sign-out.png)
 
 4. Wait until Windows shows and completes `Signing out`. This step triggers FSLogix to save and unload the user profile container.
 
-![Windows signing out screen](Images_attachments/windows-signing-out-screen.svg)
+![Windows signing out screen](Images_attachments/windows-signing-out-screen.png)
 
 5. Log in again to the same VM, or log in to another VM created from the same Golden Image, and confirm that the test file still exists under `C:\Users\<username>`.
 
-![Windows user profile folder with test file](Images_attachments/windows-user-profile-folder-luka.svg)
+![Windows user profile folder with test file](Images_attachments/windows-user-profile-folder-luka.png)
 
 ### 5.3 Verify Persistence
 
