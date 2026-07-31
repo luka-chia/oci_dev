@@ -16,7 +16,9 @@
 
 > 重要：FSLogix 路径使用 **ZFSSA data 网卡 IP**，不要使用 AD IP，也不要使用 ZFSSA 管理公网 IP。
 
-ZFS（Zettabyte File System）提供后端存储能力，SMB（Server Message Block）提供 Windows 文件共享访问，Microsoft FSLogix Profile Containers 将 Windows 用户 profile 以 VHDX 形式保存在该 SMB share 上。
+- **ZFS（Zettabyte File System）** 提供后端存储能力，
+- **SMB（Server Message Block）** 提供 Windows 文件共享访问，
+- **Microsoft FSLogix Profile Containers** 将 Windows 用户 profile 以 VHDX 形式保存在该 SMB share 上。
 
 ---
 
@@ -740,6 +742,27 @@ C:\Users\<username>
 
 ZFSSA 上的 FSLogix 目录默认按用户和 SID 生成，不按 VM hostname 生成。因此同一个 AD 用户从不同 Windows 11 VM 登录时，会尝试使用同一个远端 profile container。
 
+#### Sign out 验证步骤（非常重要）
+
+> Sign out of the Windows 11 desktop (very important step)  
+> Note: Signing out of Windows 11 is crucial for FSLogix to function correctly, as it ensures that the user profile data is properly saved to the FSLogix profile container located on the ZFSSA.
+
+建议测试时按以下顺序操作：
+
+1. 使用测试域用户登录 Windows 11，例如 `js\luka` 或 `js\dennis`。
+2. 在用户 profile 中创建或修改测试文件，例如 `C:\Users\luka\luka.txt`。
+3. 从 Windows 11 Start menu 选择当前用户，然后点击 `Sign out`，不要只关闭 RDP / Secure Desktop 窗口。
+
+![Windows Start menu sign out](Images_attachments/windows-start-menu-sign-out.svg)
+
+4. 等待 Windows 显示并完成 `Signing out`。这一步会触发 FSLogix 保存并卸载用户 profile container。
+
+![Windows signing out screen](Images_attachments/windows-signing-out-screen.svg)
+
+5. 重新登录同一台 VM，或登录下一台使用同一 Golden Image 创建的 VM，确认 `C:\Users\<username>` 下的测试文件仍然存在。
+
+![Windows user profile folder with test file](Images_attachments/windows-user-profile-folder-luka.svg)
+
 ### 5.3 Verify Persistence
 
 Scenario 1 测试流程：
@@ -798,86 +821,6 @@ FSLogix Profiles feature is not enabled
 
 ---
 
-## VHDLocations vs CCDLocations
-
-`VHDLocations` 和 `CCDLocations` 都是告诉 FSLogix profile container 存放在哪里，但它们不是同一种模式。当前环境只有一个 ZFSSA SMB share，因此如果目标是“VM1 不想等很久 Sign out，VM2 也能用同一 AD 用户登录”，优先使用 `VHDLocations`。
-
-### VHDLocations
-
-`VHDLocations` 是普通 Profile Container 路径。Windows 11 VM 登录时，FSLogix 直接通过 SMB 访问 ZFSSA 上的 VHDX。
-
-示例：
-
-```powershell
-reg add "HKLM\SOFTWARE\FSLogix\Profiles" /v VHDLocations /t REG_SZ /d "\\192.168.0.45\primary\profiles" /f
-```
-
-访问模型：
-
-```text
-Windows 11 VM -> SMB TCP/445 -> \\192.168.0.45\primary\profiles -> Profile_<username>.vhdx
-```
-
-适合：
-
-- 单个 ZFSSA SMB share。
-- 希望配置简单、状态文件更少。
-- 希望减少 Cloud Cache 带来的 sign out / merge 等待。
-- 当前目标：VM1 不想等很久 Sign out，VM2 也要能用同一个 AD 用户登录。
-
-注意：如果要支持同一个 AD 用户同时或连续登录多台 VM，需要配合 `ProfileType=3`，让第二个会话在主 RW profile 被占用时可以 fallback 到 RO / 差异盘方式进入。
-
-### CCDLocations
-
-`CCDLocations` 是 Cloud Cache 配置。Windows 11 VM 会使用 Cloud Cache provider 字符串，并维护 Cloud Cache 相关本地缓存和远端 provider 状态。
-
-示例：
-
-```powershell
-reg add "HKLM\SOFTWARE\FSLogix\Profiles" /v CCDLocations /t REG_SZ /d 'type=smb,name="SMB Primary",connectionString=\\192.168.0.45\primary\profiles' /f
-```
-
-访问模型：
-
-```text
-Windows 11 VM -> FSLogix Cloud Cache -> SMB provider -> \\192.168.0.45\primary\profiles
-```
-
-适合：
-
-- 需要 Cloud Cache 语义。
-- 后续可能配置多个 storage provider。
-- 可以接受 sign out 时 Cloud Cache flush / merge 的额外等待。
-- 同一个 AD 用户一次只登录一台 VM，切换 VM 前能正常 `Sign out`。
-
-注意：`CCDLocations` 的 value 不是普通 UNC 路径，而是 provider 字符串。当前 blog 示例虽然只写了一个 SMB provider，但它仍然会按 Cloud Cache 模式工作。
-
-### Comparison
-
-| 项目 | `VHDLocations` | `CCDLocations` |
-| --- | --- | --- |
-| FSLogix 模式 | 普通 Profile Container | Cloud Cache |
-| 配置格式 | UNC 路径 | provider 字符串 |
-| 示例 | `\\192.168.0.45\primary\profiles` | `type=smb,name="SMB Primary",connectionString=\\192.168.0.45\primary\profiles` |
-| 当前环境适配 | 单个 ZFSSA SMB share 更合适 | blog 默认方案，可保留但不是当前目标优先方案 |
-| 多存储 provider | 不适合 | 适合扩展多个 provider |
-| 本地缓存 / 远端状态 | 相对简单 | Cloud Cache 状态更多 |
-| 常见额外状态文件 | 较少 | 可能有 `.lock`、`.meta` 等 |
-| Sign out 体验 | 配合 `VHDCompactDisk=0` 通常更快 | 可能等待 cache flush / merge / compact |
-| 异常删除 VM 后恢复 | 相对简单，配合 `CleanupInvalidSessions=1` | 可能残留更复杂的 Cloud Cache 状态 |
-| 同一 AD 用户多 VM 登录 | 配合 `ProfileType=3` 使用 | 不建议作为当前目标优先方案 |
-| 推荐结论 | Scenario 2 | Scenario 1 / blog default |
-
-一句话总结：
-
-```text
-VHDLocations = 直接使用 ZFSSA SMB 上的 profile VHDX，适合单 ZFS share 和当前多 VM 登录目标。
-CCDLocations = Cloud Cache，适合需要 Cloud Cache / 多 provider 的场景，但 sign out 和异常恢复更复杂。
-```
-
-不要同时配置两者。如果之前已经通过 `gpedit.msc` 配置了 Cloud Cache `CCD Locations`，切换到 `VHDLocations` 前需要把该策略改为 `Not Configured`，并确认 `HKLM\SOFTWARE\Policies\FSLogix\Profiles` 中没有旧的 `CCDLocations` 覆盖项。
-
----
 
 ## Common Issues and FAQ
 
@@ -1134,3 +1077,86 @@ Scenario 2 — 当前目标推荐 / 单 ZFSSA SMB：
 - `VHDCompactDisk = 0`。
 - `CCDLocations` 不存在；`HKLM\SOFTWARE\Policies\FSLogix\Profiles` 中也不应有旧的 `CCDLocations` 策略覆盖项。
 - VM1 仍在线或还没完成注销时，VM2 用同一 AD 用户登录不应进入临时 profile。
+
+---
+
+## VHDLocations vs CCDLocations
+
+`VHDLocations` 和 `CCDLocations` 都是告诉 FSLogix profile container 存放在哪里，但它们不是同一种模式。当前环境只有一个 ZFSSA SMB share，因此如果目标是“VM1 不想等很久 Sign out，VM2 也能用同一 AD 用户登录”，优先使用 `VHDLocations`。
+
+### VHDLocations
+
+`VHDLocations` 是普通 Profile Container 路径。Windows 11 VM 登录时，FSLogix 直接通过 SMB 访问 ZFSSA 上的 VHDX。
+
+示例：
+
+```powershell
+reg add "HKLM\SOFTWARE\FSLogix\Profiles" /v VHDLocations /t REG_SZ /d "\\192.168.0.45\primary\profiles" /f
+```
+
+访问模型：
+
+```text
+Windows 11 VM -> SMB TCP/445 -> \\192.168.0.45\primary\profiles -> Profile_<username>.vhdx
+```
+
+适合：
+
+- 单个 ZFSSA SMB share。
+- 希望配置简单、状态文件更少。
+- 希望减少 Cloud Cache 带来的 sign out / merge 等待。
+- 当前目标：VM1 不想等很久 Sign out，VM2 也要能用同一个 AD 用户登录。
+
+注意：如果要支持同一个 AD 用户同时或连续登录多台 VM，需要配合 `ProfileType=3`，让第二个会话在主 RW profile 被占用时可以 fallback 到 RO / 差异盘方式进入。
+
+### CCDLocations
+
+`CCDLocations` 是 Cloud Cache 配置。Windows 11 VM 会使用 Cloud Cache provider 字符串，并维护 Cloud Cache 相关本地缓存和远端 provider 状态。
+
+示例：
+
+```powershell
+reg add "HKLM\SOFTWARE\FSLogix\Profiles" /v CCDLocations /t REG_SZ /d 'type=smb,name="SMB Primary",connectionString=\\192.168.0.45\primary\profiles' /f
+```
+
+访问模型：
+
+```text
+Windows 11 VM -> FSLogix Cloud Cache -> SMB provider -> \\192.168.0.45\primary\profiles
+```
+
+适合：
+
+- 需要 Cloud Cache 语义。
+- 后续可能配置多个 storage provider。
+- 可以接受 sign out 时 Cloud Cache flush / merge 的额外等待。
+- 同一个 AD 用户一次只登录一台 VM，切换 VM 前能正常 `Sign out`。
+
+注意：`CCDLocations` 的 value 不是普通 UNC 路径，而是 provider 字符串。当前 blog 示例虽然只写了一个 SMB provider，但它仍然会按 Cloud Cache 模式工作。
+
+### Comparison
+
+| 项目 | `VHDLocations` | `CCDLocations` |
+| --- | --- | --- |
+| FSLogix 模式 | 普通 Profile Container | Cloud Cache |
+| 配置格式 | UNC 路径 | provider 字符串 |
+| 示例 | `\\192.168.0.45\primary\profiles` | `type=smb,name="SMB Primary",connectionString=\\192.168.0.45\primary\profiles` |
+| 当前环境适配 | 单个 ZFSSA SMB share 更合适 | blog 默认方案，可保留但不是当前目标优先方案 |
+| 多存储 provider | 不适合 | 适合扩展多个 provider |
+| 本地缓存 / 远端状态 | 相对简单 | Cloud Cache 状态更多 |
+| 常见额外状态文件 | 较少 | 可能有 `.lock`、`.meta` 等 |
+| Sign out 体验 | 配合 `VHDCompactDisk=0` 通常更快 | 可能等待 cache flush / merge / compact |
+| 异常删除 VM 后恢复 | 相对简单，配合 `CleanupInvalidSessions=1` | 可能残留更复杂的 Cloud Cache 状态 |
+| 同一 AD 用户多 VM 登录 | 配合 `ProfileType=3` 使用 | 不建议作为当前目标优先方案 |
+| 推荐结论 | Scenario 2 | Scenario 1 / blog default |
+
+一句话总结：
+
+```text
+VHDLocations = 直接使用 ZFSSA SMB 上的 profile VHDX，适合单 ZFS share 和当前多 VM 登录目标。
+CCDLocations = Cloud Cache，适合需要 Cloud Cache / 多 provider 的场景，但 sign out 和异常恢复更复杂。
+```
+
+不要同时配置两者。如果之前已经通过 `gpedit.msc` 配置了 Cloud Cache `CCD Locations`，切换到 `VHDLocations` 前需要把该策略改为 `Not Configured`，并确认 `HKLM\SOFTWARE\Policies\FSLogix\Profiles` 中没有旧的 `CCDLocations` 覆盖项。
+
+---
