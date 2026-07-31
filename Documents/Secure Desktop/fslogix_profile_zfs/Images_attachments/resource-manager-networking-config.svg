@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="875" viewBox="0 0 840 875">
+  <style>
+    .bg { fill: #f7f5f1; }
+    .panel { fill: #fbfaf8; stroke: #b8b2aa; stroke-width: 1; }
+    .title { font: 700 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #222; }
+    .section { font: 700 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #222; }
+    .label { font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #222; }
+    .optional { font: italic 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #666; }
+    .input { fill: #fff; stroke: #bbb5ad; stroke-width: 1; }
+    .value { font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #222; }
+    .note { font: 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #555; }
+    .radio { fill: #0077a3; }
+    .checkbox { fill: #fff; stroke: #bbb5ad; }
+    .textarea { fill: #fff; stroke: #bbb5ad; stroke-width: 1; }
+    .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #222; }
+  </style>
+  <rect class="bg" x="0" y="0" width="840" height="875"/>
+  <text x="8" y="24" class="title">Cluster Networking Configuration</text>
+  <rect x="10" y="30" width="820" height="290" class="panel"/>
+<text x="30" y="58" class="label">Compartment of Cluster Network VCN<tspan class="optional"></tspan></text>
+<rect x="30" y="68" width="790" height="34" rx="3" class="input"/>
+<text x="42" y="90" class="value">lu.jia</text>
+<text x="30" y="119" class="note">Compartment where Cluster Network VCN is configured.</text>
+<text x="30" y="144" class="label">Cluster Network VCN (Non-NAS Network)<tspan class="optional">  Optional</tspan></text>
+<rect x="30" y="154" width="790" height="34" rx="3" class="input"/>
+<text x="42" y="176" class="value">Luka-frankfurt-vcn</text>
+<text x="30" y="205" class="note">Cluster Network VCN (Non-NAS Network) where to create a subnet for cluster network.</text>
+<text x="30" y="230" class="label">Cluster Network Subnet<tspan class="optional"></tspan></text>
+<rect x="30" y="240" width="790" height="34" rx="3" class="input"/>
+<text x="42" y="262" class="value">public_subnet (Regional)</text>
+<text x="30" y="291" class="note">Subnet used for cluster network.</text>
+<text x="8" y="350" class="title">Networking Configuration</text>
+<rect x="10" y="362" width="820" height="500" class="panel"/>
+<rect x="30" y="382" width="13" height="13" class="checkbox"/><text x="52" y="393" class="label">Admin Network custom configuration</text>
+<text x="52" y="416" class="note">Check this box to allow users to configure NAS Admin Network access VNICs.</text>
+<text x="30" y="452" class="label">Compartment of NAS Admin Network VCN<tspan class="optional"></tspan></text>
+<rect x="30" y="462" width="790" height="34" rx="3" class="input"/>
+<text x="42" y="484" class="value">lu.jia</text>
+<text x="30" y="513" class="note">Compartment where NAS Admin Network VCN is configured.</text>
+<text x="30" y="538" class="label">Subnet in NAS Admin Network<tspan class="optional"></tspan></text>
+<rect x="30" y="548" width="790" height="34" rx="3" class="input"/>
+<text x="42" y="570" class="value">public_subnet (Regional)</text>
+<text x="30" y="599" class="note">Subnet where to configure admin access VNICs.</text>
+<rect x="30" y="620" width="13" height="13" class="checkbox"/><text x="52" y="631" class="label">Data Network custom configuration</text>
+<text x="52" y="654" class="note">Check this box to allow users to configure NAS Data Network access VNICs.</text>
+<text x="30" y="690" class="label">Compartment of NAS Data Network VCN<tspan class="optional"></tspan></text>
+<rect x="30" y="700" width="790" height="34" rx="3" class="input"/>
+<text x="42" y="722" class="value">lu.jia</text>
+<text x="30" y="751" class="note">Compartment where NAS Data Network VCN is configured.</text>
+<text x="30" y="776" class="label">Subnet in NAS Data Network<tspan class="optional"></tspan></text>
+<rect x="30" y="786" width="790" height="34" rx="3" class="input"/>
+<text x="42" y="808" class="value">public_subnet (Regional)</text>
+<text x="30" y="837" class="note">Subnet where to configure data access VNICs and IP address for NAS data IO.</text>
+</svg>

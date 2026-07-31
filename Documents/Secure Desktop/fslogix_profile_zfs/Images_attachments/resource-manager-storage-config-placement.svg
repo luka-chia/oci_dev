@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="830" height="930" viewBox="0 0 830 930">
+  <style>
+    .bg { fill: #f7f5f1; }
+    .panel { fill: #fbfaf8; stroke: #b8b2aa; stroke-width: 1; }
+    .title { font: 700 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #222; }
+    .section { font: 700 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #222; }
+    .label { font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #222; }
+    .optional { font: italic 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #666; }
+    .input { fill: #fff; stroke: #bbb5ad; stroke-width: 1; }
+    .value { font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #222; }
+    .note { font: 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #555; }
+    .radio { fill: #0077a3; }
+    .checkbox { fill: #fff; stroke: #bbb5ad; }
+    .textarea { fill: #fff; stroke: #bbb5ad; stroke-width: 1; }
+    .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #222; }
+  </style>
+  <rect class="bg" x="0" y="0" width="830" height="930"/>
+  <text x="8" y="24" class="title">Storage Configuration and Placement</text>
+  <rect x="8" y="34" width="814" height="888" class="panel"/>
+<text x="30" y="60" class="label">Storage Configuration<tspan class="optional"></tspan></text>
+<rect x="30" y="70" width="760" height="34" rx="3" class="input"/>
+<text x="42" y="92" class="value">SingleHead</text>
+<text x="30" y="121" class="note">Select a type for storage configuration. HA Solution: Active/Passive or Active/Active, Non-HA Solution: SingleHead.</text>
+<text x="30" y="146" class="label">Compute Instance Shape<tspan class="optional"></tspan></text>
+<rect x="30" y="156" width="760" height="34" rx="3" class="input"/>
+<text x="42" y="178" class="value">VM.Standard.E5.Flex</text>
+<text x="30" y="207" class="note">Compute instance shape to use for ZS OCI instances. Select a shape supported by the image.</text>
+<text x="30" y="232" class="label">Number of OCPUs<tspan class="optional">  Optional</tspan></text>
+<rect x="30" y="242" width="760" height="34" rx="3" class="input"/>
+<text x="42" y="264" class="value">8</text>
+<text x="30" y="293" class="note">At least 8 OCPUs is required, 16 OCPUs is recommended.</text>
+<text x="30" y="318" class="label">Memory Size (GBs)<tspan class="optional">  Optional</tspan></text>
+<rect x="30" y="328" width="760" height="34" rx="3" class="input"/>
+<text x="42" y="350" class="value">128</text>
+<text x="30" y="379" class="note">At least 128 GBs is required, 256 GBs is recommended.</text>
+<text x="30" y="404" class="label">Image Version<tspan class="optional"></tspan></text>
+<rect x="30" y="414" width="760" height="34" rx="3" class="input"/>
+<text x="42" y="436" class="value">Oracle-ZFS-Storage-8.8.92-IDR5919.2</text>
+<text x="30" y="465" class="note">Choose image version.</text>
+<text x="30" y="490" class="label">Storage Name<tspan class="optional"></tspan></text>
+<rect x="30" y="500" width="760" height="34" rx="3" class="input"/>
+<text x="42" y="522" class="value">zfs</text>
+<text x="30" y="551" class="note">Base hostname for ZS OCI instances and their resources.</text>
+<text x="30" y="576" class="label">Cluster Placement Group Configuration<tspan class="optional"></tspan></text>
+<rect x="30" y="586" width="760" height="34" rx="3" class="input"/>
+<text x="42" y="608" class="value">None</text>
+<text x="30" y="637" class="note">Cluster Placement Groups let you create compute instances and block volumes in close proximity to one another.</text>
+<text x="30" y="662" class="label">Compartment<tspan class="optional"></tspan></text>
+<rect x="30" y="672" width="760" height="34" rx="3" class="input"/>
+<text x="42" y="694" class="value">lu.jia</text>
+<text x="30" y="723" class="note">Compartment where to place the storage.</text>
+<text x="30" y="748" class="label">Availability Domain<tspan class="optional"></tspan></text>
+<rect x="30" y="758" width="760" height="34" rx="3" class="input"/>
+<text x="42" y="780" class="value">bxtG:EU-FRANKFURT-1-AD-1</text>
+<text x="30" y="809" class="note">Availability domain where to place the storage.</text>
+<text x="30" y="834" class="label">Fault Domain for Primary<tspan class="optional"></tspan></text>
+<rect x="30" y="844" width="760" height="34" rx="3" class="input"/>
+<text x="42" y="866" class="value">FAULT-DOMAIN-1</text>
+<text x="30" y="895" class="note">Fault domain to place the primary instance.</text>
+<text x="30" y="920" class="label">Defined Tags<tspan class="optional">  Optional</tspan></text>
+<rect x="30" y="930" width="760" height="34" rx="3" class="input"/>
+<text x="42" y="952" class="value">{}</text>
+<text x="30" y="981" class="note">Predefined tags to apply.</text>
+</svg>

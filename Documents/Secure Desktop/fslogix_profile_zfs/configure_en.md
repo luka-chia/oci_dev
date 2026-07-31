@@ -12,8 +12,11 @@ The document is based on an actual configuration workflow. Replace the sample IP
 | ZFSSA Admin IP | Public management IP, for example | `zfs-adm-a` VNIC IP, used for BUI / SSH management, not for FSLogix |
 | SMB Share | `primary` | ZFSSA filesystem / SMB share name |
 | FSLogix Profile Path | `\\192.168.0.45\primary\profiles` | The path used by the FSLogix configuration |
+| Test AD Users | `js\luka`, `js\dennis` | AD test users used in this validation |
 
 > Important: the FSLogix path must use the **ZFSSA data VNIC IP**. Do not use the AD IP address, and do not use the ZFSSA public management IP.
+
+ZFS (Zettabyte File System) provides the backend storage layer, SMB (Server Message Block) provides Windows file share access, and Microsoft FSLogix Profile Containers store Windows user profiles as VHDX files on that SMB share.
 
 ---
 
@@ -62,6 +65,14 @@ Active Directory does not store these directories or VHDX files. AD is only resp
 ## Task 1 — Create ZFSSA Instance from OCI Marketplace
 
 Launch the **ZFS Storage Appliance / ZFSSA Storage Deployment** Resource Manager stack from OCI Marketplace.
+
+This test uses the **SingleHead single-node model**, which means a non-HA deployment. The following images show sample Resource Manager Stack variables to configure; replace the compartment, VCN, subnet, AD, and SSH key values with your own environment values.
+
+![Resource Manager storage configuration and placement sample](Images_attachments/resource-manager-storage-config-placement.svg)
+
+![Resource Manager networking configuration sample](Images_attachments/resource-manager-networking-config.svg)
+
+![Resource Manager storage settings sample](Images_attachments/resource-manager-storage-settings.svg)
 
 A basic PoC deployment can be understood as:
 

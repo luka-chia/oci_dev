@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="395" viewBox="0 0 840 395">
+  <style>
+    .bg { fill: #f7f5f1; }
+    .panel { fill: #fbfaf8; stroke: #b8b2aa; stroke-width: 1; }
+    .title { font: 700 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #222; }
+    .section { font: 700 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #222; }
+    .label { font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #222; }
+    .optional { font: italic 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #666; }
+    .input { fill: #fff; stroke: #bbb5ad; stroke-width: 1; }
+    .value { font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #222; }
+    .note { font: 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #555; }
+    .radio { fill: #0077a3; }
+    .checkbox { fill: #fff; stroke: #bbb5ad; }
+    .textarea { fill: #fff; stroke: #bbb5ad; stroke-width: 1; }
+    .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #222; }
+  </style>
+  <rect class="bg" x="0" y="0" width="840" height="395"/>
+  <text x="8" y="24" class="title">Storage Settings</text>
+  <rect x="10" y="30" width="820" height="340" class="panel"/>
+<text x="35" y="58" class="label">SSH Public Key for Admin User (opc)</text>
+<circle cx="48" cy="87" r="6" class="radio"/><text x="62" y="91" class="value">Choose SSH key file</text>
+<circle cx="194" cy="87" r="6" fill="#fff" stroke="#bbb5ad"/><text x="208" y="91" class="value">Paste SSH key</text>
+<rect x="45" y="118" width="760" height="75" class="textarea"/>
+<text x="58" y="143" class="mono">ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC02p4H1pj...</text>
+<text x="58" y="163" class="mono">...redacted for documentation sample...</text>
+<text x="35" y="216" class="note">SSH public key for admin user (opc) on the instance.</text>
+<text x="35" y="252" class="label">User Init Data<tspan class="optional">  Optional</tspan></text>
+<rect x="35" y="264" width="790" height="85" class="textarea"/>
+<text x="50" y="292" class="mono">script zs.pool_create(&apos;pool-a&apos;);</text>
+<text x="35" y="368" class="note">Script to use to initialize storage on the primary instance.</text>
+</svg>

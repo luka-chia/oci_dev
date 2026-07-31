@@ -12,8 +12,11 @@
 | ZFSSA Admin IP | 例如公网管理 IP | `zfs-adm-a` 网卡 IP，用于 BUI / SSH 管理，不用于 FSLogix |
 | SMB Share | `primary` | ZFSSA filesystem / SMB share name |
 | FSLogix Profile Path | `\\192.168.0.45\primary\profiles` | Task 4 的 CCD Location 指向此路径 |
+| Test AD Users | `js\luka`, `js\dennis` | 本次验证使用的 AD 测试用户 |
 
 > 重要：FSLogix 路径使用 **ZFSSA data 网卡 IP**，不要使用 AD IP，也不要使用 ZFSSA 管理公网 IP。
+
+ZFS（Zettabyte File System）提供后端存储能力，SMB（Server Message Block）提供 Windows 文件共享访问，Microsoft FSLogix Profile Containers 将 Windows 用户 profile 以 VHDX 形式保存在该 SMB share 上。
 
 ---
 
@@ -62,6 +65,14 @@ AD 本身不会保存这些目录或 VHDX 文件；AD 只负责认证和授权�
 ## Task 1 — Create ZFSSA Instance from OCI Marketplace
 
 在 OCI Marketplace 中通过 **ZFS Storage Appliance / ZFSSA Storage Deployment** 启动 Resource Manager Stack。
+
+本次测试使用 **SingleHead 单节点模型**，也就是非 HA 部署。下面图片展示 Resource Manager Stack 中需要设置的主要变量 sample，实际部署时请替换为自己的 compartment、VCN、subnet、AD 和 SSH key。
+
+![Resource Manager storage configuration and placement sample](Images_attachments/resource-manager-storage-config-placement.svg)
+
+![Resource Manager networking configuration sample](Images_attachments/resource-manager-networking-config.svg)
+
+![Resource Manager storage settings sample](Images_attachments/resource-manager-storage-settings.svg)
 
 基础 PoC 部署通常可以理解为：
 
