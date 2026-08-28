@@ -12,13 +12,13 @@ import os
 # https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm#SDK_and_CLI_Configuration_File
 # for more info
 config = oci.config.from_file()
-# config.update({"region": "us-ashburn-1"})
+config.update({"region": "ap-singapore-1"})
 # Initialize service client with default config file
 object_storage_client = oci.object_storage.ObjectStorageClient(config)
 
-bucket_name="Luka-bucket-ashburn",
-object_name="test",
-local_file_path = "/Users/luka/Downloads/om_oic_use_case.pdf"
+bucket_name="Luka-bucket",
+object_name="test_img",
+local_file_path = "/Users/luka/Downloads/oci-secure-desktop.png"
 
 try:
     # Open the local file in binary read mode
@@ -26,10 +26,10 @@ try:
         # Call the put_object method
         put_object_response = object_storage_client.put_object(
             namespace_name="sehubjapacprod",
-            bucket_name="Luka-bucket-ashburn",
-            object_name="test",
+            bucket_name=bucket_name,
+            object_name=object_name,
             put_object_body=f,
-            content_type="text/plain" # Set the appropriate content type for your file
+            content_type="application/json" # Set the appropriate content type for your file
         )
     print(f"Object '{object_name}' uploaded successfully to bucket '{bucket_name}'.")
 
